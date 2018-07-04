@@ -1,0 +1,237 @@
+ID	level1	level2	Description_map	Description_module	Case_coverage	Control_coverage	Reportscore	State
+M00001	Metabolism	Carbohydrate_Metabolism	Glycolysis_/_Gluconeogenesis	Glycolysis (Embden-Meyerhof pathway), glucose => pyruvate	0.933333333333333	0.933333333333333	3.496864016706	Remain
+M00002	Metabolism	Carbohydrate_Metabolism	Glycolysis_/_Gluconeogenesis	Glycolysis, core module involving three-carbon compounds	1	1	2.62060903308124	Remain
+M00003	Metabolism	Carbohydrate_Metabolism	Glycolysis_/_Gluconeogenesis	Gluconeogenesis, oxaloacetate => fructose-6P	0.923076923076923	0.923076923076923	1.88555407063825	Remain
+M00004	Metabolism	Carbohydrate_Metabolism	Pentose_phosphate_pathway	Pentose phosphate pathway (Pentose phosphate cycle)	0.909090909090909	0.909090909090909	2.58427790806574	Remain
+M00005	Metabolism	Carbohydrate_Metabolism	Pentose_phosphate_pathway	PRPP biosynthesis, ribose 5P => PRPP	1	1	1.95655754825883	Remain
+M00006	Metabolism	Carbohydrate_Metabolism	Pentose_phosphate_pathway	Pentose phosphate pathway, oxidative phase, glucose 6P => ribulose 5P	0.833333333333333	0.833333333333333	0.504572613732179	Remain
+M00007	Metabolism	Carbohydrate_Metabolism	Pentose_phosphate_pathway	Pentose phosphate pathway, non-oxidative phase, fructose 6P => ribose 5P	0.833333333333333	0.833333333333333	3.15014825279556	Remain
+M00008	Metabolism	Carbohydrate_Metabolism	Pentose_phosphate_pathway	Entner-Doudoroff pathway, glucose-6P => glyceraldehyde-3P + pyruvate	1	1	0.947066738426129	Remain
+M00009	Metabolism	Carbohydrate_Metabolism	Citrate_cycle_(TCA_cycle)	Citrate cycle (TCA cycle, Krebs cycle)	0.851851851851852	0.851851851851852	0.869460834058502	Remain
+M00010	Metabolism	Carbohydrate_Metabolism	Citrate_cycle_(TCA_cycle)	Citrate cycle, first carbon oxidation, oxaloacetate => 2-oxoglutarate	1	1	0.630552813852617	Remain
+M00011	Metabolism	Carbohydrate_Metabolism	Citrate_cycle_(TCA_cycle)	Citrate cycle, second carbon oxidation, 2-oxoglutarate => oxaloacetate	0.733333333333333	0.733333333333333	0.120105648498123	Remain
+M00012	Metabolism	Carbohydrate_Metabolism	Glyoxylate_and_dicarboxylate_metabolism	Glyoxylate cycle	0.75	0.75	-0.584435365681915	Remain
+M00013	Metabolism	Carbohydrate_Metabolism	Propanoate_metabolism	Malonate semialdehyde pathway, propanoyl-CoA => Acetyl-CoA	0.285714285714286	0.285714285714286	0.51886138325472	Remain
+M00014	Metabolism	Carbohydrate_Metabolism	Pentose_and_glucuronate_interconversions	Glucuronate pathway (uronate pathway)	0.6	0.6	1.30845511980985	Remain
+M00015	Metabolism	Amino_Acid_Metabolism	Arginine_and_proline_metabolism	Proline biosynthesis, glutamate => proline	0.75	0.75	1.2531672293979	Remain
+M00016	Metabolism	Amino_Acid_Metabolism	Lysine_biosynthesis	Lysine biosynthesis, succinyl-DAP pathway, aspartate => lysine	0.923076923076923	0.923076923076923	1.48954983436026	Remain
+M00017	Metabolism	Amino_Acid_Metabolism	Cysteine_and_methionine_metabolism	Methionine biosynthesis, apartate => homoserine => methionine	0.909090909090909	0.909090909090909	0.825928985019747	Remain
+M00018	Metabolism	Amino_Acid_Metabolism	Glycine,_serine_and_threonine_metabolism	Threonine biosynthesis, aspartate => homoserine => threonine	0.9	0.9	2.84110062878251	Remain
+M00019	Metabolism	Amino_Acid_Metabolism	Valine,_leucine_and_isoleucine_biosynthesis	Valine/isoleucine biosynthesis, pyruvate => valine / 2-oxobutanoate => isoleucine	0.909090909090909	0.909090909090909	2.62104737063336	Remain
+M00020	Metabolism	Amino_Acid_Metabolism	Glycine,_serine_and_threonine_metabolism	Serine biosynthesis, glycerate-3P => serine	1	1	1.8134407519911	Remain
+M00021	Metabolism	Amino_Acid_Metabolism	Cysteine_and_methionine_metabolism	Cysteine biosynthesis, serine => cysteine	0.75	0.75	0.236389301467293	Remain
+M00022	Metabolism	Amino_Acid_Metabolism	Phenylalanine,_tyrosine_and_tryptophan_biosynthesis	Shikimate pathway, phosphoenolpyruvate + erythrose-4P => chorismate	0.846153846153846	0.846153846153846	3.92501244232824	Remain
+M00023	Metabolism	Amino_Acid_Metabolism	Phenylalanine,_tyrosine_and_tryptophan_biosynthesis	Tryptophan biosynthesis, chorismate => tryptophan	0.714285714285714	0.714285714285714	0.621389944031529	Remain
+M00024	Metabolism	Amino_Acid_Metabolism	Phenylalanine,_tyrosine_and_tryptophan_biosynthesis	Phenylalanine biosynthesis, chorismate => phenylalanine	0.833333333333333	0.833333333333333	1.46381815309824	Remain
+M00025	Metabolism	Amino_Acid_Metabolism	Phenylalanine,_tyrosine_and_tryptophan_biosynthesis	Tyrosine biosynthesis, chorismate => tyrosine	0.846153846153846	0.846153846153846	1.9982436200185	Remain
+M00026	Metabolism	Amino_Acid_Metabolism	Histidine_metabolism	Histidine biosynthesis, PRPP => histidine	0.866666666666667	0.866666666666667	3.25265473593774	Remain
+M00027	Metabolism	Amino_Acid_Metabolism	Alanine,_aspartate_and_glutamate_metabolism	GABA (gamma-Aminobutyrate) shunt	0.666666666666667	0.666666666666667	0.550096821602	Remain
+M00028	Metabolism	Amino_Acid_Metabolism	Arginine_and_proline_metabolism	Ornithine biosynthesis, glutamate => ornithine	0.615384615384615	0.615384615384615	1.1822839421425	Remain
+M00029	Metabolism	Amino_Acid_Metabolism	Arginine_and_proline_metabolism	Urea cycle	0.666666666666667	0.666666666666667	1.29766130046967	Remain
+M00030	Metabolism	Amino_Acid_Metabolism	Lysine_biosynthesis	Lysine biosynthesis, AAA pathway, 2-oxoglutarate => 2-aminoadipate => lysine	0.5	0.5	1.85298733679085	Remain
+M00031	Metabolism	Amino_Acid_Metabolism	Lysine_biosynthesis	Lysine biosynthesis, 2-aminoadipate => lysine	0.5	0.5	-0.445022521624656	Remain
+M00032	Metabolism	Amino_Acid_Metabolism	Lysine_degradation	Lysine degradation, lysine => saccharopine => acetoacetyl-CoA	0.529411764705882	0.529411764705882	0.752988320369775	Remain
+M00033	Metabolism	Amino_Acid_Metabolism	Glycine,_serine_and_threonine_metabolism	Ectoine biosynthesis, aspartate => ectoine	0.625	0.625	0.117370121913846	Remain
+M00034	Metabolism	Amino_Acid_Metabolism	Cysteine_and_methionine_metabolism	Methionine salvage pathway	0.8125	0.8125	2.74774764596599	Remain
+M00035	Metabolism	Amino_Acid_Metabolism	Cysteine_and_methionine_metabolism	Methionine degradation	0.8	0.8	3.20099575332965	Remain
+M00036	Metabolism	Amino_Acid_Metabolism	Valine,_leucine_and_isoleucine_degradation	Leucine degradation, leucine => acetoacetate + acetyl-CoA	0.692307692307692	0.692307692307692	1.62205897259012	Remain
+M00037	Metabolism	Amino_Acid_Metabolism	Tryptophan_metabolism	Melatonin biosynthesis, tryptophan => serotonin => melatonin	0.25	0.25	-0.0693363694129201	Remain
+M00038	Metabolism	Amino_Acid_Metabolism	Tryptophan_metabolism	Tryptophan metabolism, tryptophan => kynurenine => 2-aminomuconate	0.125	0.125	1.66031228881994	Remain
+M00040	Metabolism	Amino_Acid_Metabolism	Phenylalanine,_tyrosine_and_tryptophan_biosynthesis	Tyrosine biosynthesis, prephanate => pretyrosine => tyrosine	0.666666666666667	0.666666666666667	0.647717151393166	Remain
+M00042	Metabolism	Amino_Acid_Metabolism	Tyrosine_metabolism	Catecholamine biosynthesis, tyrosine => dopamine => noradrenaline => adrenaline	0.333333333333333	0.333333333333333	-0.0693363694129201	Remain
+M00044	Metabolism	Amino_Acid_Metabolism	Tyrosine_metabolism	Tyrosine degradation, tyrosine => homogentisate	0.5	0.5	0.691532861687597	Remain
+M00045	Metabolism	Amino_Acid_Metabolism	Histidine_metabolism	Histidine degradation, histidine => N-formiminoglutamate => glutamate	1	1	0.42376016756001	Remain
+M00046	Metabolism	Nucleotide_Metabolism	Pyrimidine_metabolism	Pyrimidine degradation, uracil => beta-alanine, thymine => 3-aminoisobutanoate	1	1	1.60919534840127	Remain
+M00047	Metabolism	Amino_Acid_Metabolism	Arginine_and_proline_metabolism	Creatine pathway	0.333333333333333	0.333333333333333	2.15987851713868	Remain
+M00048	Metabolism	Nucleotide_Metabolism	Purine_metabolism	Inosine monophosphate biosynthesis, PRPP + glutamine => IMP	0.65	0.65	0.000360337215965178	Remain
+M00049	Metabolism	Nucleotide_Metabolism	Purine_metabolism	Adenine ribonucleotide biosynthesis, IMP => ADP,ATP	0.7	0.7	0.918592037258088	Remain
+M00050	Metabolism	Nucleotide_Metabolism	Purine_metabolism	Guanine ribonucleotide biosynthesis IMP => GDP,GTP	0.7	0.7	1.84688422720565	Remain
+M00051	Metabolism	Nucleotide_Metabolism	Pyrimidine_metabolism	Uridine monophosphate biosynthesis, glutamine (+ PRPP) => UMP	0.615384615384615	0.615384615384615	2.29516892969846	Remain
+M00052	Metabolism	Nucleotide_Metabolism	Pyrimidine_metabolism	Pyrimidine ribonucleotide biosynthesis, UMP => UDP/UTP,CDP/CTP	0.5	0.5	1.34868236897014	Remain
+M00053	Metabolism	Nucleotide_Metabolism	Pyrimidine_metabolism	Pyrimidine deoxyribonuleotide biosynthesis, CDP/CTP => dCDP/dCTP,dTDP/dTTP	0.666666666666667	0.666666666666667	1.39519411640796	Remain
+M00055	Metabolism	Glycan_Biosynthesis_and_Metabolism	N-Glycan_biosynthesis	N-glycan precursor biosynthesis	0.307692307692308	0.307692307692308	0.756906170973834	Remain
+M00058	Metabolism	Glycan_Biosynthesis_and_Metabolism	Glycosaminoglycan_biosynthesis_-_chondroitin_sulfate	Glycosaminoglycan biosynthesis, chondroitin sulfate backbone	1	1	1.40338692082094	Remain
+M00060	Metabolism	Glycan_Biosynthesis_and_Metabolism	Lipopolysaccharide_biosynthesis	Lipopolysaccharide biosynthesis, KDO2-lipid A	1	1	-4.82442987946609	Remain
+M00061	Metabolism	Carbohydrate_Metabolism	Pentose_and_glucuronate_interconversions	Uronic acid metabolism	1	1	-1.60941466172976	Remain
+M00063	Metabolism	Glycan_Biosynthesis_and_Metabolism	Lipopolysaccharide_biosynthesis	CMP-KDO biosynthesis	1	1	-1.98349819934824	Remain
+M00064	Metabolism	Glycan_Biosynthesis_and_Metabolism	Lipopolysaccharide_biosynthesis	ADP-L-glycero-D-manno-heptose biosynthesis	1	1	1.79662695864029	Remain
+M00065	Metabolism	Glycan_Biosynthesis_and_Metabolism	Glycosylphosphatidylinositol(GPI)-anchor_biosynthesis	GPI-anchor biosynthesis, core oligosaccharide	0.5	0.5	3.31101425761618	Remain
+M00072	Metabolism	Glycan_Biosynthesis_and_Metabolism	N-Glycan_biosynthesis	Oligosaccharyltransferase	0.125	0.125	1.11053353085389	Remain
+M00073	Metabolism	Glycan_Biosynthesis_and_Metabolism	N-Glycan_biosynthesis	N-glycan precursor trimming	0.333333333333333	0.333333333333333	1.10932468846077	Remain
+M00074	Metabolism	Glycan_Biosynthesis_and_Metabolism	N-Glycan_biosynthesis	N-glycan biosynthesis, high-mannose type	0.153846153846154	0.153846153846154	-0.83763173336052	Remain
+M00075	Metabolism	Glycan_Biosynthesis_and_Metabolism	N-Glycan_biosynthesis	N-glycan biosynthesis, complex type	0.333333333333333	0.333333333333333	0.992341320566177	Remain
+M00076	Metabolism	Glycan_Biosynthesis_and_Metabolism	Glycosaminoglycan_degradation	Dermatan sulfate degradation	0.8	0.8	0.385675887347507	Remain
+M00077	Metabolism	Glycan_Biosynthesis_and_Metabolism	Glycosaminoglycan_degradation	Chondroitin sulfate degradation	1	1	0.208903850985303	Remain
+M00078	Metabolism	Glycan_Biosynthesis_and_Metabolism	Glycosaminoglycan_degradation	Heparan sulfate degradation	0.875	0.875	0.665928331138596	Remain
+M00079	Metabolism	Glycan_Biosynthesis_and_Metabolism	Glycosaminoglycan_degradation	Keratan sulfate degradation	0.75	0.75	0.179746589703049	Remain
+M00080	Metabolism	Glycan_Biosynthesis_and_Metabolism	Lipopolysaccharide_biosynthesis	Lipopolysaccharide biosynthesis, inner core => outer core => O-antigen	1	1	-1.68052715932229	Remain
+M00081	Metabolism	Carbohydrate_Metabolism	Pentose_and_glucuronate_interconversions	Pectin degradation	1	1	-0.913577488730435	Remain
+M00082	Metabolism	Lipid_Metabolism	Fatty_acid_biosynthesis	Fatty acid biosynthesis, initiation	0.833333333333333	0.833333333333333	1.30252698233203	Remain
+M00083	Metabolism	Lipid_Metabolism	Fatty_acid_biosynthesis	Fatty acid biosynthesis, elongation	0.727272727272727	0.727272727272727	1.40182119389829	Remain
+M00086	Metabolism	Lipid_Metabolism	Fatty_acid_metabolism	beta-Oxidation, acyl-CoA synthesis	0.5	0.5	-0.819429989254367	Remain
+M00087	Metabolism	Lipid_Metabolism	Fatty_acid_metabolism	beta-Oxidation	0.4375	0.4375	0.444779638403409	Remain
+M00088	Metabolism	Lipid_Metabolism	Synthesis_and_degradation_of_ketone_bodies	Ketone body biosynthesis, acetyl-CoA => acetoacetate/3-hydroxybutyrate/acetone	1	1	3.85434967607515	Remain
+M00089	Metabolism	Lipid_Metabolism	Glycerolipid_metabolism	Triacylglycerol biosynthesis	0.25	0.25	3.48157417631613	Remain
+M00090	Metabolism	Lipid_Metabolism	Glycerophospholipid_metabolism	Phosphatidylcholine (PC) biosynthesis, choline => PC	0.25	0.25	1.42298517943004	Remain
+M00091	Metabolism	Lipid_Metabolism	Glycerophospholipid_metabolism	Phosphatidylcholine (PC) biosynthesis, PE => PC	1	1	2.39928012406147	Remain
+M00092	Metabolism	Lipid_Metabolism	Glycerophospholipid_metabolism	Phosphatidylethanolamine (PE) biosynthesis, ethanolamine => PE	0.25	0.25	-0.628348357830385	Remain
+M00093	Metabolism	Lipid_Metabolism	Glycerophospholipid_metabolism	Phosphatidylethanolamine (PE) biosynthesis, PA => PS => PE	1	1	-2.88621876526756	Remain
+M00095	Metabolism	Metabolism_of_Terpenoids_and_Polyketides	Terpenoid_backbone_biosynthesis	C5 isoprenoid biosynthesis, mevalonate pathway	0.75	0.75	3.36333206707447	Remain
+M00096	Metabolism	Metabolism_of_Terpenoids_and_Polyketides	Terpenoid_backbone_biosynthesis	C5 isoprenoid biosynthesis, non-mevalonate pathway	1	1	-0.334659107205604	Remain
+M00098	Metabolism	Lipid_Metabolism	Glycerolipid_metabolism	Acylglycerol degradation	0.5	0.5	1.15200299918034	Remain
+M00112	Metabolism	Metabolism_of_Cofactors_and_Vitamins	Ubiquinone_and_other_terpenoid-quinone_biosynthesis	Tocopherol biosynthesis	0.666666666666667	0.666666666666667	1.68918208397421	Remain
+M00114	Metabolism	Carbohydrate_Metabolism	Glycolysis_/_Gluconeogenesis	Ascorbate biosynthesis, plants, glucose-6P => ascorbate	0.636363636363636	0.636363636363636	-0.919541017836804	Remain
+M00115	Metabolism	Metabolism_of_Cofactors_and_Vitamins	Nicotinate_and_nicotinamide_metabolism	NAD biosynthesis, aspartate => NAD	0.857142857142857	0.857142857142857	-0.503978949726025	Remain
+M00116	Metabolism	Metabolism_of_Cofactors_and_Vitamins	Ubiquinone_and_other_terpenoid-quinone_biosynthesis	Menaquinone biosynthesis, chorismate => menaquinone	0.818181818181818	0.818181818181818	-3.08266730603862	Remain
+M00117	Metabolism	Metabolism_of_Cofactors_and_Vitamins	Ubiquinone_and_other_terpenoid-quinone_biosynthesis	Ubiquinone biosynthesis, prokaryotes, chorismate => ubiquinone	1	1	1.93636163628416	Remain
+M00118	Metabolism	Metabolism_of_Other_Amino_Acids	Glutathione_metabolism	Glutathione biosynthesis, glutamate => glutathione	0.5	0.5	-0.272293444807295	Remain
+M00119	Metabolism	Metabolism_of_Cofactors_and_Vitamins	Pantothenate_and_CoA_biosynthesis	Pantothenate biosynthesis, valine/L-aspartate => pantothenate	0.833333333333333	0.833333333333333	-1.03354507680108	Remain
+M00120	Metabolism	Metabolism_of_Cofactors_and_Vitamins	Pantothenate_and_CoA_biosynthesis	Coenzyme A biosynthesis, pantothenate => CoA	0.8	0.8	2.23428641713618	Remain
+M00121	Metabolism	Metabolism_of_Cofactors_and_Vitamins	Porphyrin_and_chlorophyll_metabolism	Heme biosynthesis, glutamate => protoheme/siroheme	0.80952380952381	0.80952380952381	3.52258227108897	Remain
+M00122	Metabolism	Metabolism_of_Cofactors_and_Vitamins	Porphyrin_and_chlorophyll_metabolism	Cobalamin biosynthesis, cobinamide => cobalamin	0.9	0.9	1.84965532105042	Remain
+M00123	Metabolism	Metabolism_of_Cofactors_and_Vitamins	Biotin_metabolism	Biotin biosynthesis, pimeloyl-ACP/CoA => biotin	1	1	0.741417597208365	Remain
+M00124	Metabolism	Metabolism_of_Cofactors_and_Vitamins	Vitamin_B6_metabolism	Pyridoxal biosynthesis, erythrose-4P => pyridoxal-5P	1	1	-0.175960229499198	Remain
+M00125	Metabolism	Metabolism_of_Cofactors_and_Vitamins	Riboflavin_metabolism	Riboflavin biosynthesis, GTP => riboflavin/FMN/FAD	0.727272727272727	0.727272727272727	0.324761693316964	Remain
+M00126	Metabolism	Metabolism_of_Cofactors_and_Vitamins	Folate_biosynthesis	Tetrahydrofolate biosynthesis, GTP => THF	0.714285714285714	0.714285714285714	-1.36630547684264	Remain
+M00127	Metabolism	Metabolism_of_Cofactors_and_Vitamins	Thiamine_metabolism	Thiamine biosynthesis, AIR => thiamine-P/thiamine-2P	0.75	0.75	-0.0864538713035922	Remain
+M00129	Metabolism	Carbohydrate_Metabolism	Pentose_and_glucuronate_interconversions	Ascorbate biosynthesis, animals, glucose-1P => ascorbate	0.8	0.8	0.502418445041644	Remain
+M00133	Metabolism	Amino_Acid_Metabolism	Arginine_and_proline_metabolism	Polyamine biosynthesis, arginine => agmatine => putrescine => spermidine	1	1	1.10585802078889	Remain
+M00134	Metabolism	Amino_Acid_Metabolism	Arginine_and_proline_metabolism	Polyamine biosynthesis, arginine => ornithine => putrescine	1	1	0.876443001916145	Remain
+M00136	Metabolism	Amino_Acid_Metabolism	Arginine_and_proline_metabolism	GABA biosynthesis, prokaryotes, putrescine => GABA	1	1	-0.903287737163658	Remain
+M00138	Metabolism	Biosynthesis_of_Other_Secondary_Metabolites	Flavonoid_biosynthesis	Flavonoid biosynthesis, naringenin => pelargonidin	1	1	2.56251787950241	Remain
+M00140	Metabolism	Metabolism_of_Cofactors_and_Vitamins	One_carbon_pool_by_folate	C1-unit interconversion, prokaryotes	1	1	2.86279665779298	Remain
+M00144	Metabolism	Energy_Metabolism	Oxidative_phosphorylation	NADH:quinone oxidoreductase, prokaryotes	1	1	-2.66262284640247	Remain
+M00149	Metabolism	Energy_Metabolism	Oxidative_phosphorylation	Succinate dehydrogenase, prokaryotes	1	1	-1.47179183397391	Remain
+M00150	Metabolism	Energy_Metabolism	Oxidative_phosphorylation	Fumarate reductase, prokaryotes	1	1	1.25703572297971	Remain
+M00151	Metabolism	Energy_Metabolism	Oxidative_phosphorylation	Cytochrome bc1 complex respiratory unit	0.111111111111111	0.111111111111111	0.127337310871978	Remain
+M00153	Metabolism	Energy_Metabolism	Oxidative_phosphorylation	Cytochrome d ubiquinol oxidase	1	1	-2.08667543012487	Remain
+M00155	Metabolism	Energy_Metabolism	Oxidative_phosphorylation	Cytochrome c oxidase, prokaryotes	0.461538461538462	0.461538461538462	-0.0863127183738069	Remain
+M00157	Metabolism	Energy_Metabolism	Oxidative_phosphorylation	F-type ATPase, bacteria	1	1	2.56855925649785	Remain
+M00159	Metabolism	Energy_Metabolism	Oxidative_phosphorylation	V-type ATPase, prokaryotes	1	1	4.75951043124575	Remain
+M00173	Metabolism	Energy_Metabolism	Carbon_fixation_pathways_in_prokaryotes	Reductive citric acid cycle (Arnon-Buchanan cycle)	0.82051282051282	0.82051282051282	1.16623550596881	Remain
+M00174	Metabolism	Energy_Metabolism	Methane_metabolism	Methane oxidation, methylotroph, methane => CO2	0.588235294117647	0.588235294117647	1.33587494749912	Remain
+M00175	Metabolism	Energy_Metabolism	Nitrogen_metabolism	Nitrogen fixation, nitrogen => ammonia	0.8	0.8	3.21316715450009	Remain
+M00176	Metabolism	Energy_Metabolism	Sulfur_metabolism	Sulfur reduction, sulfate => H2S	0.727272727272727	0.727272727272727	2.0477785980871	Remain
+M00178	Genetic_Information_Processing	Translation	Ribosome	Ribosome, bacteria	1	1	3.19954985009561	Remain
+M00179	Genetic_Information_Processing	Translation	Ribosome	Ribosome, archaea	0.507462686567164	0.507462686567164	1.61437565583804	Remain
+M00183	Genetic_Information_Processing	Transcription	RNA_polymerase	RNA polymerase, bacteria	0.833333333333333	0.833333333333333	1.17270243060546	Remain
+M00185	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Sulfate transport system	1	1	1.93030447394746	Remain
+M00186	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Tungstate transport system	1	1	2.97713274754832	Remain
+M00189	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Molybdate transport system	1	1	0.280957862775091	Remain
+M00190	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Iron(III) transport system	1	1	2.97087547598165	Remain
+M00191	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Thiamine transport system	1	1	-1.21290151516439	Remain
+M00194	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Maltose/maltodextrin transport system	0.8	0.8	2.69073832014158	Remain
+M00198	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Putative sn-glycerol-phosphate transport system	1	1	-1.96987961342535	Remain
+M00199	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	L-Arabinose/lactose transport system	0.75	0.75	3.53124885718386	Remain
+M00200	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Putative sorbitol/mannitol transport system	0.4	0.4	4.08755570217967	Remain
+M00202	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Oligogalacturonide transport system	1	1	1.24186518261303	Remain
+M00205	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	N-Acetylglucosamine transport system	1	1	3.82672447263294	Remain
+M00206	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Cellobiose transport system	0.25	0.25	4.38474658199443	Remain
+M00208	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Glycine betaine/proline transport system	1	1	-0.0611037256667022	Remain
+M00209	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Osmoprotectant transport system	1	1	0.966424937935366	Remain
+M00212	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Ribose transport system	1	1	2.61346472258506	Remain
+M00213	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	L-Arabinose transport system	1	1	0.651682245323915	Remain
+M00214	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Methyl-galactoside transport system	1	1	2.61214600431925	Remain
+M00215	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	D-Xylose transport system	1	1	0.562107340432826	Remain
+M00216	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Multiple sugar transport system	1	1	2.39116604492062	Remain
+M00217	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	D-Allose transport system	1	1	1.01805559347355	Remain
+M00219	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	AI-2 transport system	1	1	-1.99842088723488	Remain
+M00220	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Rhamnose transport system	1	1	1.13056613796757	Remain
+M00222	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Phosphate transport system	1	1	1.24798690644907	Remain
+M00223	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Phosphonate transport system	1	1	3.72556334798238	Remain
+M00224	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Fluoroquinolones transport system	1	1	-1.50214306732017	Remain
+M00225	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Lysine/arginine/ornithine transport system	1	1	0.199065516620184	Remain
+M00226	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Histidine transport system	1	1	-0.0476034506453088	Remain
+M00227	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Glutamine transport system	1	1	-0.506080365580098	Remain
+M00228	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Putative glutamine transport system	1	1	3.72431341427718	Remain
+M00229	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Arginine transport system	1	1	0.212779853490921	Remain
+M00230	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Glutamate/aspartate transport system	1	1	-0.529844159800702	Remain
+M00232	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	General L-amino acid transport system	1	1	-1.12888413852425	Remain
+M00233	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Glutamate transport system	1	1	6.07359350697361	Remain
+M00234	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Cystine transport system	1	1	1.21904498869748	Remain
+M00237	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Branched-chain amino acid transport system	1	1	4.84729067339721	Remain
+M00238	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	D-Methionine transport system	1	1	2.99266334564995	Remain
+M00239	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Peptides/nickel transport system	1	1	3.53390557464426	Remain
+M00240	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Iron complex transport system	1	1	1.33047069707253	Remain
+M00241	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Vitamin B12 transport system	1	1	0.252441573474805	Remain
+M00242	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Zinc transport system	1	1	1.87956190775121	Remain
+M00245	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Cobalt/nickel transport system	1	1	4.66279809316806	Remain
+M00246	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Nickel transport system	1	1	5.61169599498778	Remain
+M00248	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Putative antibiotic transport system	1	1	2.27862246583868	Remain
+M00249	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Capsular polysaccharide transport system	1	1	0.880471151279807	Remain
+M00250	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Lipopolysaccharide transport system	1	1	2.16567746183695	Remain
+M00251	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Teichoic acid transport system	1	1	1.96714026836812	Remain
+M00253	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Sodium transport system	1	1	0.776250949633429	Remain
+M00255	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Lipoprotein-releasing system	1	1	-2.51584459121912	Remain
+M00256	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Cell division transport system	1	1	0.207571234477319	Remain
+M00259	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Heme transport system	1	1	-0.416960187438003	Remain
+M00260	Genetic_Information_Processing	Replication_and_Repair	DNA_replication	DNA polymerase III complex, bacteria	0.909090909090909	0.909090909090909	2.2685252870914	Remain
+M00265	Metabolism	Carbohydrate_Metabolism	Glycolysis_/_Gluconeogenesis	PTS system, glucose-specific II component	0.666666666666667	0.666666666666667	0.312998129334139	Remain
+M00266	Metabolism	Carbohydrate_Metabolism	Glycolysis_/_Gluconeogenesis	PTS system, maltose and glucose-specific II component	1	1	-0.149768087943667	Remain
+M00267	Metabolism	Carbohydrate_Metabolism	Amino_sugar_and_nucleotide_sugar_metabolism	PTS system, N-acetylglucosamine-specific II component	0.666666666666667	0.666666666666667	0.724712755219957	Remain
+M00268	Metabolism	Carbohydrate_Metabolism	Glycolysis_/_Gluconeogenesis	PTS system, arbutin-like II component	0.666666666666667	0.666666666666667	0.421986080975459	Remain
+M00269	Metabolism	Carbohydrate_Metabolism	Starch_and_sucrose_metabolism	PTS system, sucrose-specific II component	0.666666666666667	0.666666666666667	2.62627829211612	Remain
+M00270	Metabolism	Carbohydrate_Metabolism	Starch_and_sucrose_metabolism	PTS system, trehalose-specific II component	0.75	0.75	1.134771483236	Remain
+M00271	Environmental_Information_Processing	Membrane_Transport	Phosphotransferase_system_(PTS)	PTS system, beta-glucosides-specific II component	0.666666666666667	0.666666666666667	3.25027914032286	Remain
+M00272	Metabolism	Carbohydrate_Metabolism	Glycolysis_/_Gluconeogenesis	PTS system, arbutin-, cellobiose-, and salicin-specific II component	1	1	0.20410092732596	Remain
+M00273	Metabolism	Carbohydrate_Metabolism	Fructose_and_mannose_metabolism	PTS system, fructose-specific II component	1	1	1.20944507822805	Remain
+M00274	Metabolism	Carbohydrate_Metabolism	Fructose_and_mannose_metabolism	PTS system, mannitol-specific II component	0.666666666666667	0.666666666666667	1.00931981192083	Remain
+M00275	Environmental_Information_Processing	Membrane_Transport	Phosphotransferase_system_(PTS)	PTS system, cellobiose-specific II component	1	1	2.27373388806317	Remain
+M00276	Metabolism	Carbohydrate_Metabolism	Fructose_and_mannose_metabolism	PTS system, mannose-specific II component	1	1	1.82302194467368	Remain
+M00277	Metabolism	Carbohydrate_Metabolism	Galactose_metabolism	PTS system, N-acetylgalactosamine-specific II component	1	1	-0.298205531928839	Remain
+M00278	Metabolism	Carbohydrate_Metabolism	Fructose_and_mannose_metabolism	PTS system, sorbose-specific II component	1	1	-1.02131597873671	Remain
+M00279	Metabolism	Carbohydrate_Metabolism	Galactose_metabolism	PTS system, galactitol-specific II component	1	1	-0.124808494113181	Remain
+M00280	Metabolism	Carbohydrate_Metabolism	Fructose_and_mannose_metabolism	PTS system, glucitol/sorbitol-specific II component	1	1	1.74397405376295	Remain
+M00281	Metabolism	Carbohydrate_Metabolism	Galactose_metabolism	PTS system, lactose-specific II component	0.666666666666667	0.666666666666667	1.37929479601797	Remain
+M00282	Metabolism	Carbohydrate_Metabolism	Amino_sugar_and_nucleotide_sugar_metabolism	PTS system, D-glucosamine-specific II component	1	1	1.52113318033533	Remain
+M00283	Metabolism	Carbohydrate_Metabolism	Ascorbate_and_aldarate_metabolism	PTS system, ascorbate-specific II component	1	1	1.31888947503995	Remain
+M00287	Metabolism	Carbohydrate_Metabolism	Galactose_metabolism	PTS system, galactosamine-specific II component	1	1	-0.0316184905125125	Remain
+M00299	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Spermidine/putrescine transport system	1	1	-0.27067997006581	Remain
+M00300	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Putrescine transport system	1	1	0.369343463926548	Remain
+M00302	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	2-Aminoethylphosphonate transport system	0.5	0.5	-0.127650030501453	Remain
+M00303	Environmental_Information_Processing	Membrane_Transport	Phosphotransferase_system_(PTS)	PTS system, N-acetylmuramic acid-specific II component	1	1	0.170843726116309	Remain
+M00304	Environmental_Information_Processing	Membrane_Transport	Phosphotransferase_system_(PTS)	PTS system, fructose-specific II component	0.25	0.25	1.8173201985667	Remain
+M00305	Environmental_Information_Processing	Membrane_Transport	Phosphotransferase_system_(PTS)	PTS system, 2-O-A-mannosyl-D-glycerate-specific II component	1	1	-0.845838032446566	Remain
+M00307	Metabolism	Carbohydrate_Metabolism	Glycolysis_/_Gluconeogenesis	Pyruvate oxidation, pyruvate => acetyl-CoA	1	1	4.04229501164189	Remain
+M00308	Metabolism	Carbohydrate_Metabolism	Pentose_phosphate_pathway	Semi-phosphorylative Entner-Doudoroff pathway, gluconate => glyceraldehyde-3P + pyruvate	1	1	1.51654449836425	Remain
+M00309	Metabolism	Carbohydrate_Metabolism	Pentose_phosphate_pathway	Non-phosphorylative Entner-Doudoroff pathway, gluconate => glyceraldehyde + pyruvate	0.5	0.5	2.27768991807343	Remain
+M00310	Metabolism	Carbohydrate_Metabolism	Pyruvate_metabolism	Pyruvate:ferredoxin oxidoreductase	1	1	1.37783858885342	Remain
+M00311	Metabolism	Carbohydrate_Metabolism	Citrate_cycle_(TCA_cycle)	2-oxoglutarate:ferredoxin oxidoreductase	1	1	-1.05963756091949	Remain
+M00312	Metabolism	Amino_Acid_Metabolism	Valine,_leucine_and_isoleucine_degradation	2-oxoisovalerate:ferredoxin oxidoreductase	0.25	0.25	1.17124946862102	Remain
+M00314	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Bacitracin transport system	1	1	0.932009093903799	Remain
+M00315	Environmental_Information_Processing	Signal_Transduction	Two-component_system	Uncharacterized ABC transport system	0.5	0.5	-0.187562371227129	Remain
+M00317	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Manganese/iron transport system	1	1	2.0150256555301	Remain
+M00319	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Manganese/zinc/iron transport system	1	1	3.88640935926608	Remain
+M00320	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Lipopolysaccharide export system	1	1	-2.50381359282745	Remain
+M00324	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Dipeptide transport system	1	1	0.551826897358527	Remain
+M00325	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	alpha-Hemolysin/cyclolysin transport system	1	1	0.887880900013463	Remain
+M00331	Environmental_Information_Processing	Membrane_Transport	Bacterial_secretion_system	Type II general secretion system	1	1	0.73645477764854	Remain
+M00332	Environmental_Information_Processing	Membrane_Transport	Bacterial_secretion_system	Type III secretion system	0.933333333333333	0.933333333333333	1.33462077334749	Remain
+M00333	Environmental_Information_Processing	Membrane_Transport	Bacterial_secretion_system	Type IV secretion system	0.916666666666667	0.916666666666667	3.17101101966131	Remain
+M00334	Environmental_Information_Processing	Membrane_Transport	Bacterial_secretion_system	Type VI secretion system	0.777777777777778	0.777777777777778	-0.459626595694911	Remain
+M00335	Environmental_Information_Processing	Membrane_Transport	Bacterial_secretion_system	Sec (secretion) system	1	1	1.08459796308703	Remain
+M00336	Environmental_Information_Processing	Membrane_Transport	Bacterial_secretion_system	Twin-arginine translocation (Tat) system	1	1	0.133032290546915	Remain
+M00338	Metabolism	Amino_Acid_Metabolism	Cysteine_and_methionine_metabolism	Cysteine biosynthesis, homocysteine + serine => cysteine	0.666666666666667	0.666666666666667	3.87791665279978	Remain
+M00342	Genetic_Information_Processing	Folding,_Sorting_and_Degradation	Proteasome	Bacterial proteasome	0.5	0.5	4.88217165336948	Remain
+M00343	Genetic_Information_Processing	Folding,_Sorting_and_Degradation	Proteasome	Archaeal proteasome	0.333333333333333	0.333333333333333	2.43706657598717	Remain
+M00344	Metabolism	Energy_Metabolism	Methane_metabolism	Formaldehyde assimilation, xylulose monophosphate pathway	1	1	1.88052829455182	Remain
+M00345	Metabolism	Energy_Metabolism	Methane_metabolism	Formaldehyde assimilation, ribulose monophosphate pathway	0.833333333333333	0.833333333333333	3.16413939888594	Remain
+M00346	Metabolism	Energy_Metabolism	Methane_metabolism	Formaldehyde assimilation, serine pathway	0.7	0.7	1.0406450408611	Remain
+M00347	Metabolism	Energy_Metabolism	Methane_metabolism	Methanogenesis, formate => methane	0.363636363636364	0.363636363636364	4.74712557069122	Remain
+M00348	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Glutathione transport system	1	1	1.40824763259613	Remain
+M00349	Environmental_Information_Processing	Membrane_Transport	ABC_transporters	Microcin C transport system	1	1	0.032706538528409	Remain
+M00350	Metabolism	Amino_Acid_Metabolism	Phenylalanine_metabolism	Capsaicin biosynthesis, L-Phenylalanine => Capsaicin	0.666666666666667	0.666666666666667	1.16575403680064	Remain
+M00356	Metabolism	Energy_Metabolism	Methane_metabolism	Methanogenesis, methanol => methane	0.357142857142857	0.357142857142857	5.14075728017903	Remain
+M00357	Metabolism	Energy_Metabolism	Methane_metabolism	Methanogenesis, acetate => methane	0.333333333333333	0.333333333333333	4.59296474728607	Remain
+M00358	Metabolism	Energy_Metabolism	Methane_metabolism	Coenzyme M biosynthesis	0.4	0.4	1.91318103276948	Remain
+M00360	Genetic_Information_Processing	Translation	Aminoacyl-tRNA_biosynthesis	Aminoacyl-tRNA biosynthesis, prokaryotes	0.935483870967742	0.935483870967742	4.21557755614673	Remain
+M00362	Metabolism	Carbohydrate_Metabolism	Amino_sugar_and_nucleotide_sugar_metabolism	Nucleotide sugar biosynthesis, prokaryotes	0.75	0.75	0.255512822225893	Remain
+M00364	Metabolism	Metabolism_of_Terpenoids_and_Polyketides	Terpenoid_backbone_biosynthesis	C10-C20 isoprenoid biosynthesis, bacteria	1	1	1.22360992931865	Remain
+M00365	Metabolism	Metabolism_of_Terpenoids_and_Polyketides	Terpenoid_backbone_biosynthesis	C10-C20 isoprenoid biosynthesis, archaea	1	1	1.26642592596057	Remain
+M00368	Metabolism	Amino_Acid_Metabolism	Cysteine_and_methionine_metabolism	Ethylene biosynthesis, methionine => ethylene	1	1	-0.298325049743099	Remain
+M00373	Metabolism	Carbohydrate_Metabolism	Glyoxylate_and_dicarboxylate_metabolism	Ethylmalonyl pathway	0.615384615384615	0.615384615384615	1.95801580530355	Remain
+M00374	Metabolism	Energy_Metabolism	Carbon_fixation_pathways_in_prokaryotes	Dicarboxylate-hydroxybutyrate cycle	0.848484848484849	0.848484848484849	2.41448064652543	Remain
+M00375	Metabolism	Energy_Metabolism	Carbon_fixation_pathways_in_prokaryotes	Hydroxypropionate-hydroxybutylate cycle	0.575757575757576	0.575757575757576	3.53698040349203	Remain
+M00376	Metabolism	Energy_Metabolism	Carbon_fixation_pathways_in_prokaryotes	3-Hydroxypropionate bicycle	0.675	0.675	2.43013526192657	Remain
+M00377	Metabolism	Energy_Metabolism	Carbon_fixation_pathways_in_prokaryotes	Reductive acetyl-CoA pathway (Wood-Ljungdahl pathway)	0.933333333333333	0.933333333333333	3.30453357673213	Remain
+M00378	Metabolism	Energy_Metabolism	Methane_metabolism	F420 biosynthesis	0.666666666666667	0.666666666666667	0.891060954629468	Remain
