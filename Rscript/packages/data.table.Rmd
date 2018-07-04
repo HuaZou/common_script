@@ -1,0 +1,55 @@
+---
+title: "Methods of dealing big data"
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### [data.table](https://cran.r-project.org/web/packages/data.table/vignettes/datatable-intro.html)
+
+  * concise and consistent syntax irrespective of the set of operations you would like to perform to achieve your end goal.
+  
+  * performing analysis fluidly without the cognitive burden of having to map each operation to a particular function from a set of functions available before to perform the analysis.
+  
+  * automatically optimising operations internally, and very effectively, by knowing precisely the data required for each operation and therefore very fast and memory efficient.
+  
+```{r}
+library(data.table)
+```
+
+```{r}
+flights <- fread("../dataSet/flight14.csv")
+head(flights, 4)
+dim(flights)
+```
+an enhanced version of data.frames. 
+```{r}
+DT <- data.table(ID = c("b","b","b","a","a","c"), a = 1:6, b = 7:12, c = 13:18)
+DT
+```
+
+### subset rows and cols
+```{r}
+# rows
+ans <- flights[origin == "JFK" & month == 3]
+head(ans)
+ans <- flights[1:2]
+ans
+
+# cols vector 
+ans <- flights[, arr_delay]
+head(ans)
+
+# cols data.table 
+ans <- flights[, list(arr_delay)]
+head(ans)
+
+# alternatively 
+ans <- flights[, .(arr_delay, dep_delay)] # ans <- flights[, .(arr_delay, dep_delay)]
+head(ans) 
+```
+
+

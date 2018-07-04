@@ -1,0 +1,534 @@
+---
+title: "heatmap"
+output: 
+  html_document:
+    highlight: tango
+    toc: true
+    toc_float:
+      collapsed: true
+---
+
+[热图网址](http://mp.weixin.qq.com/s?__biz=MzA5NzQzOTgzMw==&mid=2650829292&idx=1&sn=7ae1218f7729e909fd3b6e4f1a0e3fb4&chksm=8b5408dabc2381ccb553eb40529634ac05033c7929a821b77d7aa10ea15af7a7dbb8edc95e46&mpshare=1&scene=1&srcid=0624LQs9jMfiQsnoOC9M0v2p#rd)
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = T, warning = F)
+library(ggplot2)
+library(gplots)
+library(RColorBrewer)
+library(pheatmap)
+library(edgeR)
+library(reshape2)
+# site="https://mirrors.tuna.tsinghua.edu.cn/CRAN"
+# install.packages("ggcorrplot", repo=site)
+library(ggcorrplot)
+library(heatmap3)
+```
+
+# load data
+```{r}
+phe <- read.table("../dataSet/design.txt", header = T, row.names = 1, sep = "\t")
+prf <- read.delim("../dataSet/otu_table.txt", header = T, row.names = 1, sep = "\t")
+```
+
+## deal data
+```{r}
+phen <- phe[rownames(phe)%in%colnames(prf), ]
+prf1 <- prf[, rownames(phen)]
+norm <- t(t(prf1)/colSums(prf1,na=T)) * 100 # normalization to total 100
+cor.sp <- cor(norm, method = "spearman")
+cor.pn <- cor(norm, method = "pearson")
+
+## transform data for ggplot
+dat <- c(1:6,6:1,6:1,1:6, 
+         (6:1)/10,(1:6)/10,(1:6)/10,(6:1)/10,
+         1:6,6:1,6:1,1:6, 6:1,1:6,1:6,6:1)
+dat1 <- as.data.frame(matrix(dat, ncol=12, byrow=T))
+colnames(dat1) <- c("Zygote","R2_cell","R4_cell","R8_cell","Morula",
+                    "ICM","ESC","R4 week PGC","R7 week PGC",
+                    "R10 week PGC","R17 week PGC", "OOcyte")
+rownames(dat1) <- paste("Gene", 1:8, sep="_")
+dat1$ID <- rownames(dat1)
+data_m <- melt(dat1, id.vars=c("ID"))
+
+# plot 
+# pdf(file=paste("heat_cor_samples.pdf", sep=""), height = 8, width = 8)
+## spearman
+heatmap.2(cor.sp, Rowv = T, Colv = T, 
+          dendrogram = 'both', 
+          trace = 'none', 
+          margins = c(6,6),
+          col=rev(colorRampPalette(brewer.pal(11, 'RdYlGn'))(256)), 
+          density.info = 'none')
+
+## pearson 
+heatmap.2(cor.pn, Rowv=TRUE, Colv=TRUE, 
+          dendrogram='both', 
+          trace='none', 
+          margins=c(6,6), 
+          col=rev(colorRampPalette(brewer.pal(11, "RdYlGn"))(256)),
+          density.info="none") 
+
+## pheatmap
+pheatmap(cor.pn, treeheight_row=20,
+         treeheight_col=10,
+         cellwidth=10,
+         cellheight=10,
+         cluster_cols=T,
+         cluster_rows=T,
+         fontsize_row=10,
+         fontsize_col=8,
+         show_colnames=T)
+
+## ggplot
+ggplot(data_m, aes(x=variable, y=ID))+
+  geom_tile(aes(fill=value))+
+  scale_fill_gradient2(mid="black", 
+                         high="red", 
+                         low="green",
+                         name = "Intensity")+
+  labs(x="Time", 
+      y="GeneID", 
+      face = "bold")+
+  theme_bw()+
+    theme(axis.title.x=element_text(size=16),
+          axis.title.y=element_text(size=16),
+          axis.text.x=element_text(size=12, colour="grey50",angle=45,hjust=1, vjust=1),
+          axis.text.y=element_text(size=12, colour="grey50"),
+          legend.title=element_text(size=14),
+          legend.text=element_text(size=12),
+          legend.key.size = unit(0.8, "cm")) 
+```
+
+> 1. pearson: 热图展示所有样品基于相对丰度的Pearson相关系数矩阵。我们可以看到样品明显分成了三类，KO，OE，WT，表明该基因的过表达和基因敲除对菌群均有影响，其中过表达到WT差异明显。其中KO3与WT聚在了一起，表明其野生型相似，我能想到三种可能：过表达的基因被沉默而回复成与野生型相似；该份材料的种子是混入的WT；可能该材料的标WT串成了KO3。
+
+> 2. spearson : 结果与Pearson不一致
+
+## edgeR 统计组间差异OTU 
+```{r}
+dge <- DGEList(counts=prf1, group=phen$genotype) 
+dge1 <- calcNormFactors(dge)
+
+phen.mat <- model.matrix(~ 0 + dge1$samples$group)
+colnames(phen.mat) <- levels(phen$genotype)
+d2 <- estimateGLMCommonDisp(dge1, phen.mat)
+d3 <- estimateGLMTagwiseDisp(d2, phen.mat)
+fit <- glmFit(d3, phen.mat)
+
+## group to compare OE-WT / KO-WT
+cmpFun <- function(x, y, z, cfg){
+  #x : phen.mat  DGE list 
+  #y : normlization profile 
+  #z : phenotype 
+  #cfg : group to compare
+  
+  cmp <- makeContrasts(contrasts = cfg, levels = x)
+  datLRt <- glmLRT(fit, contrast = cmp)
+  deLRt <- decideTestsDGE(datLRt, adjust.method="fdr", p.value=0.05)
+  # 导出计算结果
+  tab <- datLRt$table
+  tab$sig <- deLRt
+  enriched <- row.names(subset(tab,sig==1))
+  depleted <- row.names(subset(tab,sig==-1))
+  group <- unlist(strsplit(cfg,"-"))
+  pair_group <- subset(z, genotype%in%group)
+  # Sig OTU in two genotype
+  DE <- c(enriched, depleted)
+  sub_norm <- as.matrix(y[DE, rownames(pair_group)])
+  return(list(tab=tab, rich=enriched, depl=depleted, dat=sub_norm))
+}
+datRes <- cmpFun(phen.mat, norm, phen, "OE-WT")
+datRes2 <- cmpFun(phen.mat, norm, phen, "KO-WT")
+# heatmap.2(datRes$dat, scale="row", Colv=F, Rowv=F, dendrogram="none",
+#          col=rev(colorRampPalette(brewer.pal(11, "RdYlGn"))(256)),
+#          cexCol=1, keysize=1, density.info="none", main=NULL, trace="none")
+#write.table(datRes$tab, "edgR.otu.OE_WT.txt", quote = F, row.names = T, sep = "\t")
+#write.table(datRes2$tab, "edgR.otu.KO_WT.txt", quote = F, row.names = T, sep = "\t")
+```
+
+# ggcorrplot
+```{r}
+data("mtcars")
+corr <- round(cor(mtcars), 1)
+head(corr[, 1:6], 4)
+```
+
+* 基于ggplot2包以及corrplot包的相关矩阵可视化包ggcorrplot，ggcorrplot包提供对相关矩阵重排序以及在相关图中展示显著性水平的方法，同时也能计算相关性p-value
+```{r}
+p.mat <- cor_pmat(mtcars)
+head(p.mat[, 1:4], 4)
+```
+
+## 可视化
+```{r}
+ggcorrplot(corr, method = "circle")
+```
+```{r}
+#重排矩阵，使用分等级聚类
+ggcorrplot(corr, hc.order = TRUE, outline.color = "white")
+```
+```{r}
+#控制矩阵形状
+ggcorrplot(corr, hc.order = TRUE, type = "lower", outline.color = "white")#下三角形  upper
+```
+```{r}
+#更改颜色以及主题
+ggcorrplot(corr, hc.order = TRUE, type = "lower", outline.color = "white",
+ggtheme = ggplot2::theme_gray, colors = c("#6D9EC1", "white", "#E46726"))
+```
+```{r}
+#添加相关系数
+ggcorrplot(corr, hc.order = TRUE, type = "lower", lab = TRUE)
+```
+```{r}
+#增加显著性水平，不显著的话就不添加了
+ggcorrplot(corr, hc.order = TRUE, type = "lower", p.mat = p.mat)
+```
+```{r}
+#将不显著的色块设置成空白
+ggcorrplot(corr, p.mat = p.mat, hc.order=TRUE, type = "lower", insig = "blank")
+```
+
+
+# pheatmap 
+```{r}
+data <- matrix(runif(120,0,100),ncol = 12)
+data[1] <- 200
+colnames(data) <- c(paste0('tr_1_',seq(1,3)),paste0('tr_2_',seq(1,3)),
+                    paste0('tr_3_',seq(1,3)),paste0('tr_4_',seq(1,3)))
+rownames(data) <- c(paste0('gene',seq(1,10)))
+pheatmap(data)
+```
+
+## 参数：border_color
+
+* 在基因数目特别多时，每个单元方块的边框可能会影响图的效果，可是使用border_color参数取消边框或者更改其颜色
+```{r}
+pheatmap(data, border_color = NA)
+pheatmap(data, border_color = 'red')
+pheatmap(data, border_color = 'green')
+```
+
+## 参数：color
+
+* 对热图的颜色可以使用color参数进行控制，里面为颜色RGB对照表[网站](http://www.114la.com/other/rgb.htm)
+```{r}
+pheatmap(data, 
+         border_color = 'yellow', 
+         color = colorRampPalette(c('#00FF00', 'white', '#EE0000'))(100))
+```
+
+## 参数：scale 
+
+* 在数据集中因为存在一个远远大于平均表达水平的值，因此就会对整个热图的呈现造成影响，而处理方法一般就是对数据作“均一化”的处理
+```{r}
+pheatmap(data, 
+         border_color = 'yellow', 
+         color = colorRampPalette(c('#00FF00', '#EE0000'))(100), 
+         scale = 'row')
+```
+
+## 参数：cluster_rows cluster_cols和cellwidth cellheight
+
+* 我们一般对处理和重复的顺序有要求，而对基因的顺序进行聚类，因此可是使用cluster_rows cluster_col来修改；
+* 同时可以使用cellwidth cellheight对每个单元方块的大小进行设置
+```{r}
+pheatmap(data, 
+         border_color = 'yellow', 
+         color = colorRampPalette(c('#00FF00','white','#EE0000'))(100),
+          scale = 'row', 
+         cluster_cols = F, 
+         cellwidth = 20, 
+         cellheight = 20)
+```
+
+## 参数：legend legend_breaks legend_labels
+
+* 可以使用legend阈值逻辑值来对色度条进行隐藏，以及对色度条上对应位置的字符进行修改
+```{r}
+pheatmap(data, border_color = 'yellow', 
+         color = colorRampPalette(c('#00FF00', 'white','#EE0000'))(100),
+         scale = 'row', 
+         cluster_cols = F, 
+         cellwidth = 20, 
+         cellheight = 20,
+         legend = T, 
+         legend_breaks = c(-2.5,0,2.5), 
+         legend_labels = c('>= -2.5', '0', '<= 2.5'))
+```
+
+## 参数：gaps_row gaps_col cutree_rows cutree_cols和treeheight_row treeheight_col
+
+* 为了使热图聚类和分类反映出来的视觉效果更加明显，可以使用cutree_rows=2把基因表达量聚类分成2类；
+* 使用gaps_col=c(3,6, 9)把所有的重复都分开(注：如使用gaps_XX对行或列进行分割，就不应该对相应的行或列进行聚类)。
+* 可以修改treeheight_row参数来改变聚类的支长长度
+```{r}
+pheatmap(data, border_color = 'yellow',
+         color = colorRampPalette(c('#00FF00', 'white','#EE0000'))(100),
+         scale = 'row', 
+         cluster_cols = F, 
+         cellwidth = 20, 
+         cellheight = 20,
+         legend = T, 
+         legend_breaks = c(-2.5,0,2.5), 
+         legend_labels = c('>= -2.5', '0', '<= 2.5'),
+         cutree_rows = 2, gaps_col=c(3, 6, 9), 
+         treeheight_row = 10)
+```
+
+## 参数：annotation_row annotation_col、annotation_colors annotation_legend和annotation_names_row annotation_names_col
+
+* 可以使用annotation_col参数，给各个处理添加一个颜色标签；
+* 利用annotation_colors对标签的颜色进行修改；
+* annotation_legend设置是否显示标签注释条；
+* 利用annotation_names_col设置是否显示标签名称。
+* 首先需要单独构建一个标签和颜色的数据框，更改标签数据框的行名称为数据集的列名称
+```{r}
+annotation_col = data.frame(treat = factor(rep(paste0('T',1:4), each = 3)),
+                            class = factor(rep(paste0('class',1:2), each = 6)))
+ann_color = list(a = c(T1 = 'yellow', 
+                       T2 = '#7570B3', 
+                       T3 = 'firebrick', 
+                       T4 = '#66A61E'),
+                 b = c(class1 = 'blue', class2 = '#1B9E77'))
+rownames(annotation_col) = colnames(data)
+
+pheatmap(data, 
+         border_color = NA, 
+         color = colorRampPalette(c('#00FF00', 'white','#EE0000'))(100), 
+         scale = 'row', 
+         cluster_cols = F, 
+         cellwidth = 20, cellheight = 20, 
+         legend = T, legend_breaks = c(-2.5,0,2.5), 
+         legend_labels = c('>= -2.5', '0', '<= 2.5'), 
+         cutree_rows = 2 ,
+         treeheight_row = 10, 
+         annotation_col = annotation_col, 
+         annotation_legend = T, 
+         annotation_colors = ann_color, 
+         annotation_names_col = T)
+```
+
+## 参数：display_numbers number_format number_color和fontsize_number
+
+* 利用display_numbers参数可以在每个单元框内显示每个方框对于的数据，其中有三个选项，TRUE、FALSE以所对应的数据，如果设置display_numbers=T，这显示做了均一化的数据（如果之前使用过scale参数），设置display_numbers=data，则表示为直接显示原始数据，即可直接显示出RPKM值在单元格中；
+* number_color顾名思义就是这是设置显示数据的颜色了；
+* fontsize_number则为显示每个数据的大小；
+* 利用number_format可以设置保留小数位数或者字符串格式（如'%.2f'），但仅有在display_numbers=T时才能使用，很鸡肋，因此不建议使用该参数，而我们一般是直接显示RPKM值，所以我们需要之前对数据集进行保留小数处理，不然数据显示会超出单元格
+```{r}
+data <- round(data,1)
+pheatmap(data, border_color = NA, 
+         color = colorRampPalette(c('#00FF00', 'white','#EE0000'))(100),
+         scale = 'row', 
+         cluster_cols = F, 
+         cellwidth = 20, cellheight = 20,
+         legend = T, 
+         legend_breaks = c(-2.5,0,2.5), 
+         legend_labels = c('>= -2.5', '0', '<= 2.5'),
+         cutree_rows = 2 ,
+         treeheight_row = 10,
+         annotation_col = annotation_col, 
+         annotation_legend = T, 
+         annotation_colors = ann_color, 
+         annotation_names_col = T,
+         display_numbers = data, 
+         number_color = 'purple', 
+         fontsize_number = 8)
+```
+
+## 参数：show_rownames show_colnames fontsize_col fontsize_row fontsize和main
+
+* show_rownames表示是否显示gene名称，用逻辑值设置，fontsize_col设置横坐标名称的大小，fontsize则是设置所有除主图以外的标签的大小，利用main设置热图的名称
+```{r}
+pheatmap(data, border_color = NA, 
+         color = colorRampPalette(c('#00FF00', 'white','#EE0000'))(100), 
+         scale = 'row', 
+         cluster_cols = F, 
+         cellwidth = 20, 
+         cellheight = 20, 
+         legend = T, 
+         legend_breaks = c(-2.5,0,2.5), 
+         legend_labels = c('>= -2.5', '0', '<= 2.5'), 
+         cutree_rows = 2 ,
+         treeheight_row = 10, 
+         annotation_col = annotation_col, 
+         annotation_legend = T, 
+         annotation_colors = ann_color, 
+         annotation_names_col = T, 
+         display_numbers = data, 
+         number_color = 'purple', 
+         fontsize_number = 8, 
+         show_rownames = F, 
+         fontsize_col = 15, 
+         fontsize = 5, 
+         main = 'heatmap_test')
+```
+
+# 相关系数矩阵
+```{r}
+data(mtcars)#加载数据集
+mydata <- mtcars[, c(1,3,4,5,6,7)]
+library(PerformanceAnalytics)#加载包
+chart.Correlation(mydata, histogram=TRUE, pch=19)
+```
+
+1. 对角线上显示的是分布图
+2. 左下部显示的是具有拟合线的双变量散点图
+3. 右上部显示的是相关系数以及显著性水平
+
+## [相关系数矩阵2](https://blog.csdn.net/qq_16365849/article/details/51075588)
+```{r}
+library(corrplot)
+
+corr <- cor(mtcars[1:7])
+corrplot(corr=corr, order="AOE", type="upper", tl.pos = "d")
+corrplot(corr=corr, add=T, type="lower", method = "number", order = "AOE", diag = F, tl.pos = "n", cl.pos = "n")
+```
+
+# sock pheatmap
+```{r}
+WHO<-read.csv("../dataSet/WHO.csv", header = TRUE)
+require(plyr)
+#按总人口数排列数据
+WHO<-arrange(WHO, desc(D))
+#将数据的名字转换为因子，并固定已拍好的country，
+#同理可以按照聚类的结果进行排列
+WHO<- transform(WHO, Country = factor(Country, levels = unique(Country)))
+
+require(reshape2)
+require(ggplot2)
+require(scales)
+require(grid)
+#melt数据
+m.WHO <- melt(WHO)
+#标准化，每排数据映射到按最小值和最大值映射到(0,1)区间
+m.WHO <- ddply(m.WHO, .(variable), transform, rescale = rescale(value))
+#标准化并正态化数据
+s.WHO <- ddply(m.WHO, .(variable), transform, rescale = scale(value))
+require(ggplot2)
+#p<-
+  ggplot(s.WHO, aes(variable, Country)) +
+  #用tile来进行绘热力图
+  geom_tile(aes(fill=rescale)) +
+  scale_fill_gradient2(mid="black", high="red", low="green", name = "Intensity") +
+  labs(x="Country", y="Index", face = "bold") +
+  theme_bw() +
+  theme(
+    axis.title.x=element_text(size=16),
+    axis.title.y=element_text(size=16),
+    axis.text.x=element_text(size=12, colour="grey50"),
+    axis.text.y=element_text(size=12, colour="grey50"),
+    legend.title=element_text(size=14),
+    legend.text=element_text(size=12),
+    legend.key.size = unit(0.8, "cm"))#需要载入grid包来调整legend的大小
+
+
+
+
+conc <- c(2.856829, 5.005303, 7.519473, 22.101664, 27.769976, 39.198025, 45.483269, 203.784238)
+rate <- c(14.58342, 24.74123, 31.34551, 72.96985, 77.50099, 96.08794, 96.96624, 108.88374)
+L.minor <- data.frame(conc, rate)
+L.minor.m1 <- nls(rate ~ Vm * conc/(K + conc), data = L.minor, #采用M-M动力学方程
+                  start = list(K = 20, Vm = 120), #初始值设置为K=20，Vm=120
+                  trace = TRUE) #占线拟合过程
+#确定x轴范围并构建数据集
+min <- range(L.minor$conc)[1]
+max <- range(L.minor$conc)[2]
+line.data <- data.frame(conc = seq(min, max, length.out = 1000))
+#用模型预测数据构建数据集
+line.data$p.predict <- predict(L.minor.m1, newdata = line.data)
+
+require(ggplot2)
+M_Mfunction <- ggplot() +
+  geom_point(aes(x = conc, y = rate), data = L.minor,
+             alpha = 0.5, size = 5, color = "red") +
+  geom_line(aes(x = conc, y = p.predict), data = line.data,
+            size = 1, color = "blue") +
+  scale_x_continuous(
+    name = expression(Substrate ~~ concentration(mmol ~~ m^3)),#采用expression来表示数学公式
+    breaks = seq(0, 200, by = 25)) +
+  scale_y_continuous(
+    name = "Uptake rate (weight/h)",
+    breaks = seq(0, 120, by = 10)) +
+  geom_text(aes(x = 100, y = 60),
+            label = "bolditalic(f(list(x, (list(K, V[m])))) == frac(V[m]%.%x, K+x))",
+            #注意 geom_text中如果用expression()来进行表达，必须开启parse = TRUE
+            #同时以字符串""的形式表示，不能使用expression
+            parse = TRUE, 
+            size = 5, family = "times"
+  ) +
+  theme_bw() +
+  theme(
+    axis.title.x=element_text(size=16),
+    axis.title.y=element_text(size=16),
+    axis.text.x=element_text(size=12),
+    axis.text.y=element_text(size=12))
+
+require(ggplot2)
+require(Cairo)
+ggplot() +
+  geom_text(aes(x = 16, y = 16), label = "ABC", size = 11.28) + #尺寸为11.28mm，即为32磅
+  geom_text(aes(x = 16, y = 14.5), label = "ABC", size = 32) + #尺寸为32mm
+  labs( x = "x axis", y = "y axis") +
+  ylim( c(14, 16.5)) +
+  xlim( c(15.75, 16.25)) +
+  theme(
+    axis.title.x = element_text(size = 32),#尺寸为32磅
+    axis.title.y = element_text(size = 32))#尺寸为32磅
+ 
+x <- seq(-4,4, length.out = 1000)
+y <-dnorm(x)
+data <- data.frame(x, y)
+ 
+#用Cairo包输出
+require(Cairo)
+#CairoPDF("plot1.pdf", 3.15, 3.15) #单位为英寸
+ggplot(data, aes(x = x, y = y)) + geom_line(size = 1) +
+  theme_bw()
+#dev.off() #关闭图像设备，同时储存图片
+
+ggplot(data, aes(x = x, y = y)) + geom_line(size = 1) +
+  theme_bw()
+#用ggsave输出，默认即以用Cairo包进行抗锯齿处理
+#ggsave("plot2.pdf", plot2, width = 3.15, height = 3.15) 
+ 
+#RStudio输出
+
+
+
+require(ggplot2)
+##change theme##
+old_theme <- theme_update(
+  axis.ticks=element_line(colour="black"),
+  panel.grid.major=element_blank(),
+  panel.grid.minor=element_blank(),
+  panel.background=element_blank(),
+  axis.line=element_line(size=0.5)
+)
+##Highlight genes that have an absolute fold change > 2 and a p-value < Bonferroni cut-off
+a <- read.table("../dataSet/flu.txt",header=TRUE,sep="\t")
+P.Value <- c(a$P.Value)
+FC <- c(a$FC)
+df <- data.frame(P.Value, FC)
+df.G <- subset(df, log2(FC) < -1& P.Value < 0.05) #define Green
+df.G <- cbind(df.G, rep(1, nrow(df.G)))
+colnames(df.G)[3] <- "Color"
+df.B <- subset(df, (log2(FC) >= -1 & log2(FC) <= 1) | P.Value >= 0.05) #define Black
+df.B <- cbind(df.B, rep(2, nrow(df.B)))
+colnames(df.B)[3] <- "Color"
+df.R <- subset(df, log2(FC) > 1 & P.Value < 0.05) #define Red
+df.R <- cbind(df.R, rep(3, nrow(df.R)))
+colnames(df.R)[3] <- "Color"
+df.t <- rbind(df.G, df.B, df.R)
+df.t$Color <- as.factor(df.t$Color)
+##Construct the plot object
+ggplot(data = df.t, aes(x = log2(FC), y = -log10(P.Value), color= Color )) +
+  geom_point(alpha = 0.5, size = 1.75) +
+  theme( legend.position = "none") +
+  xlim(c(-5, 5)) + ylim(c(0, 20)) +
+  scale_color_manual(values = c("green", "black", "red")) +
+  labs(x=expression(log[2](FC)), y=expression( -log[10](P.Value))) +
+  theme(axis.title.x=element_text(size=20), 
+        axis.text.x=element_text(size=15)) +
+  theme(axis.title.y=element_text(size=20),
+        axis.text.y=element_text(size=15))
+```

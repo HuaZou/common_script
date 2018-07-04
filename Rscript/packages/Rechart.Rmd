@@ -1,0 +1,37 @@
+---
+title: "Recharts"
+date : "`r Sys.time()`"
+output:
+  html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=T,warning=F, message = F)
+library(recharts)
+# devtools::install_github("yihui/recharts")
+library(tidyverse)
+library(plotly)
+```
+
+### scatterplot
+```{r}
+echart(iris, ~Sepal.Length, ~Sepal.Width, series = ~Species)
+```
+
+### modify the plot 
+```{r}
+g <- echart(mtcars, wt, mpg, factor(am, labels=c('Automatic', 'Manual')))
+g
+```
+
+### modify theme etc
+```{r}
+g %>% setSeries(series=2, symbolSize=8, symbolRotate=30) %>% addMarkLine(data=data.frame(type='average', name1='Avg')) %>%
+  addMarkPoint(series=1, data=data.frame(type='max', name='Max')) %>% setTheme('dark', calculable=TRUE)
+```
+
+### 3D graph in html
+```{r}
+plot_ly(data=iris, x=~Sepal.Length, y=~Sepal.Width, z=~Petal.Length, 
+             color=~Species, symbols=c(0,1), type="scatter3d", mode="markers")
+``` 

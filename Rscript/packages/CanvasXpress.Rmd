@@ -1,0 +1,114 @@
+---
+title: 'canvasXpress'
+output:
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, warning= F)
+library(canvasXpress)
+```
+
+### load data
+```{r, echo=F}
+# ##  dotplot
+# x <- read.table("http://www.canvasxpress.org/data/cX-irist-dat.txt", header=TRUE, sep="\t", quote="", row.names=1, fill=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+# # 读取分组信息
+# y <- read.table("http://www.canvasxpress.org/data/cX-irist-var.txt", header=TRUE, sep= "\t", quote="", row.names=1, fill=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+# # 绘制三维散点图，主要参数为数据、分组、分组列、置信椭圆列、图表类型以及相关标签
+# 
+
+
+# ## boxplot
+# # 数据文件
+# a1 <- read.table("http://www.canvasxpress.org/data/cX-iris-dat.txt", header=TRUE, sep="\t", quote="", row.names=1, fill=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+# # 分组信息
+# a2 <- read.table("http://www.canvasxpress.org/data/cX-iris-smp.txt", header=TRUE, sep= "\t", quote="", row.names=1, fill=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+# 绘制箱线图，按物种分大类，再按变量类型分小类
+
+
+# ## heatmap data 
+# h1  <- read.table("http://www.canvasxpress.org/data/cX-multidimensionalheatmap-dat.txt", header=TRUE, sep="\t", quote="", row.names=1, fill=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+# h2 <- read.table("http://www.canvasxpress.org/data/cX-multidimensionalheatmap-dat2.txt", header=TRUE, sep="\t", quote="", row.names=1, fill=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+# # 第三个数据属性矩阵，非连续型
+# h3 <- read.table("http://www.canvasxpress.org/data/cX-multidimensionalheatmap-dat3.txt", header=TRUE, sep="\t", quote="", row.names=1, fill=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+# # 第四个数据属性矩阵，非连续型
+# h4 <- read.table("http://www.canvasxpress.org/data/cX-multidimensionalheatmap-dat4.txt", header=TRUE, sep="\t", quote="", row.names=1, fill=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+# # 样品列表
+# m  <- read.table("http://www.canvasxpress.org/data/cX-multidimensionalheatmap-smp.txt", header=TRUE, sep= "\t", quote="", row.names=1, fill=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+# n  <- read.table("http://www.canvasxpress.org/data/cX-multidimensionalheatmap-var.txt", header=TRUE, sep= "\t", quote="", row.names=1, fill=TRUE, check.names=FALSE, stringsAsFactors=FALSE)
+#save(x,y,h1,h2,h3,h4,m,n,a1,a2,file="test.RData")
+load("../dataSet/CanvasXpress.RData")
+```
+
+### 3D dotplot
+```{r}
+canvasXpress(data      = x,
+             varAnnot  = y,
+             colorBy   = "Species",
+             ellipseBy = "Species",
+             graphType = "Scatter3D",
+             title     = "Iris Data Set",
+             xAxis     = list("Sepal.Length"),
+             yAxis     = list("Petal.Width"),
+             zAxis     = list("Petal.Length"))
+```
+
+* 看到按分组绘制了三维散点图，而且添加了分组颜色和椭球形置信区间，我们可以鼠标托动变换角度，也可点选查看点的坐标
+
+
+### 2D dotplot
+```{r}
+canvasXpress(data              = x,
+             varAnnot          = y,
+             graphType         = "Scatter2D",
+             scatterPlotMatrix = TRUE,
+             colorBy           = "Species",
+             showTransition    = TRUE)
+```
+
+* 二维矩阵散点图展示多条件或因子数据的相关性，点选显示坐标数据
+
+### boxplot
+```{r}
+canvasXpress(data              = a1,
+             smpAnnot          = a2,
+             graphType         = "Boxplot",
+             graphOrientation  = "vertical",
+             title             = "Iris flower data set",
+             smpTitle          = "Species",
+             smpLabelFontStyle = "italic",
+             smpLabelRotate    = 90,
+             xAxis2Show        = FALSE,
+             afterRender       = list(list("groupSamples", list("Species"))))
+```
+
+* 箱线图比较组间整体数据分布，组内不同因子间比较。鼠标显示数据，点击固定数据标签
+
+### heatmap
+```{r}
+canvasXpress(data          = list(y = h1, data2 = h2, data3 = h3, data4 = h4),
+             smpAnnot      = m,
+             varAnnot      = n,
+             graphType     = "Heatmap",
+             guides        = TRUE,
+             outlineBy     = "Outline",
+             outlineByData = "data2",
+             shapeBy       = "Shape",
+             shapeByData   = "data3",
+             sizeBy        = "Size",
+             sizeByData    = "data4")
+```
+
+* 四个矩阵绘制的热图，分别代表图中颜色、边框颜色、形状和大小，鼠标悬停显示属性值
+
+### venn plot
+```{r}
+canvasXpress(vennData   = data.frame(AC=456, A=340, ABC=552, ABCD=148, 
+        BC=915, ACD=298, BCD=613, B=562, CD=143, 
+        ABD=578, C=620, D=592, AB=639, BD=354, AD=257),
+        graphType  = "Venn",vennLegend = list(A="List 1", 
+        D="List 4", C="List 3", B="List 2"),vennGroups = 4)
+```
+
+* 四组比较韦恩图，需要已知15种情况下的信息。鼠标划过显示信息，双击还可显示固定信息窗口，窗口也可以托动
