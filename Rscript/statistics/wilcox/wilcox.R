@@ -20,8 +20,8 @@
 #   median:     both or each group                                           #
 #   mean:       obth or each group                                           #
 #   FDR:        adjusted P value by BH                                       #
-#   95% CI:     glm result for +/- 1.96									     #
-#   compare: compare information                                      		 #
+#   95% CI:     glm result for +/- 1.96					     #
+#   compare: compare information                                             #
 #                                                                            #
 # R-version:                                                                 #
 #   version.string R version 3.5.1 (2018-07-02)                              #
