@@ -186,8 +186,8 @@ TestFun <- function(x, y, Type=TYPE, paired=PAIRED, grp1="BASE", grp2="LOW"){
 
         datprf <- prfw %>% select(colnames(.)[datphe$SampleID])
         
-        if (length(levels(datphe$group)) < 2) {
-        stop("The levels of group are less than 2")
+        if (length(levels(datphe$group)) > 2) {
+        stop("The levels of group are more than 2")
         }
 
         grp <- datphe[, idx]
