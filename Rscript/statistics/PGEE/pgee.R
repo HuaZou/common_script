@@ -23,9 +23,10 @@
 #                                                                            #
 # R-version:                                                                 #
 #   version.string R version 3.5.1 (2018-07-02)                              #
+#   export PATH=/ldfssz1/ST_META/share/User/zouhua/Miniconda3/bin:$PATH      #
 #                                                                            #
 # Packages:                                                                  #
-#   pacman; PGEE; dplyr; tibble; imputeTS                                    #
+#   pacman; PGEE; dplyr; tibble; imputeTS; readr                             #
 #----------------------------------------------------------------------------#
 
 # clear all vectors
@@ -35,7 +36,7 @@ rm(list = ls())
 if(!require(pacman)){
   install.packages("pacman", dependencies = T)
 }
-pacman::p_load(PGEE, dplyr, tibble, imputeTS)
+pacman::p_load(PGEE, dplyr, tibble, imputeTS, readr)
 
 args <- commandArgs(T)
 
@@ -53,24 +54,35 @@ if (length(args) < 8) {
 }
 
 # prepare for function 
-phen <- read.csv(args[1])                               # necessary
-prof <- read.table(args[2], header=T, row.names=1)      # necessary
-DNAID <- args[3]	 # necessary
-GROUP <- args[4]  	 # necessary
-TYPE <- args[5]		 # necessary
-grp1 <- args[6]		 # necessary	
-grp2 <- args[7]		 # necessary	
-out <- args[8]		 # necessary
+phen <- read_csv(args[1], col_types = cols())                               
+prof <- read_delim(args[2], delim = "\t", col_types = cols()) %>% 
+        column_to_rownames("X1")
+DNAID <- args[3]	 
+GROUP <- args[4]  	 
+TYPE <- args[5]		
+grp1 <- args[6]		 	
+grp2 <- args[7]		 	
+out <- args[8]		 
 
 # Judging phenotype with two cols and names are corret
 if (!(length(which(colnames(phen) == "SampleID")) > 0)) {
-  warning("colnames of Your Phenotype doesn't cmontain SampleID")
+  warning(
+  	"colnames of Your `Phenotype` doesn't contain `SampleID`.\n")
+
   colnames(phen)[which(colnames(phen) == DNAID)] <- "SampleID"
 }
 
 if (!(length(which(colnames(phen)=="Stage")) > 0)) {
-  warning("colnames of Your Phenotype doesn't contain Stage")
-  colnames(phen)[which(colnames(phen)==GROUP)] <- "Stage"
+  warning(
+  	"colnames of Your `Phenotype` doesn't contain `Stage`.\n")
+
+  colnames(phen)[which(colnames(phen) == GROUP)] <- "Stage"
+}
+
+# phen less than 3 will stop
+if (length(which(colnames(phen) %in% c("SampleID", "ID", "Stage"))) != 3) {
+    	stop("`phen` without 3 cols.\n",
+		"please check your `GROUP` levels or the number of columns of `phen`.\n")
 }
 
 PgeeFun <- function(tag, x, y, Type=TYPE, grp1="BASE", grp2="LOW"){
@@ -101,7 +113,7 @@ PgeeFun <- function(tag, x, y, Type=TYPE, grp1="BASE", grp2="LOW"){
       Stage == grp1 ~ 0,
       Stage == grp2 ~ 1))   
   
-  prf <- y %>% select(colnames(.)[phe$SampleID]) %>%
+  prf <- y %>% select(colnames(.)[colnames(.) %in% phen$SampleID]) %>%
     # resevred the rownames
     rownames_to_column(Type) %>%
     # occurence of rows more than 2 
@@ -112,18 +124,19 @@ PgeeFun <- function(tag, x, y, Type=TYPE, grp1="BASE", grp2="LOW"){
   # merge data by sampleID
   dat <- left_join(phe, prf %>% rownames_to_column("SampleID"), by="SampleID") %>%
     select(-one_of("SampleID")) %>% rename("id"="ID", "y"="group") %>% 
-    na.replace(., 0)
+    na.replace(., 0) %>%
+    mutate(id = as.numeric(sub("P", "", id)), 
+           y = scale(y, scale = T, center = T))
   
   #scale dat 
-  dat$id <- as.numeric(sub("P","", dat$id))
-  dat$y <- scale(dat$y, scale = T, center = T)
   dat[, 4:ncol(dat)] <- scale(dat[, 4:ncol(dat)], scale = T, center = T)
   
   formula <- "y ~. -id"
   family <- gaussian(link = "identity")
-  lambda.vec <- seq(0.01, 0.25, 0.01)
+  lambda.vec <- seq(0.01, 0.5, 0.01)
   
   # best cv 
+  set.seed(123)
   cv <- CVfit(formula = formula, id = id, data = dat, family = family, scale.fix = TRUE,
               scale.value = 1, fold = 5, lambda.vec = lambda.vec, pindex = c(1, 2),
               eps = 10^-6, maxiter = 30, tol = 10^-6)

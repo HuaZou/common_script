@@ -23,7 +23,7 @@
 #   version.string R version 3.5.1 (2018-07-02)                              #
 #                                                                            #
 # Packages:                                                                  #
-#   pacman; dplyr; tibble; varhandle,PMCMR                                   #
+#   pacman; dplyr; tibble; varhandle; PMCMR; readr                           #
 #----------------------------------------------------------------------------#
 
 # clear all vectors
@@ -33,7 +33,7 @@ rm(list = ls())
 if(!require(pacman)){
     install.packages("pacman", dependencies = T)
 }
-pacman::p_load(dplyr, tibble, varhandle, PMCMR)
+pacman::p_load(dplyr, tibble, varhandle, PMCMR, readr)
 
 args <- commandArgs(T)
 
@@ -51,7 +51,8 @@ if (length(args) < 7) {
 
 # prepare for function 
 phen <- read.csv(args[1])                               
-prof <- read.table(args[2], header=T, row.names=1)      
+prof <- read_delim(args[2], delim = "\t", col_types = cols()) %>% 
+    column_to_rownames("X1")      
 DNAID <- args[3]	 
 GROUP <- args[4]  	
 TYPE <- args[5]
@@ -83,7 +84,7 @@ if (length(levels(factor(phen$Stage))) < 3 &
 }
 
 TestFun <- function(x, y, Type=TYPE, FILTER=Filter){
-  # calculate the p value and mean+/- abundance of profile 
+  # calculate the p value and mean±sd abundance of profile 
   #
   # Args:
   #   x:  phenotype which contains stage and sampleID for selecting profile
@@ -94,34 +95,37 @@ TestFun <- function(x, y, Type=TYPE, FILTER=Filter){
   # Returns:
   #   The p value among more than 2 levels
   
-  phe <- tbl_df(x) %>% 
-    arrange(SampleID, Stage) %>%
-    data.frame() %>%
-    mutate(group = as.factor(Stage)) %>%
+  phe <-  x %>% mutate(group = as.factor(Stage)) %>%
     select(SampleID, ID, group)
-  idx <- which(colnames(phe) == "group")  
     
-  prf <- tbl_df(y) %>% select(colnames(.)[colnames(.) %in% phe$SampleID]) %>%
-    select(colnames(.)[order(colnames(.))]) %>%
+  prf <- y %>% select(colnames(.)[phe$SampleID]) %>%
     # resevred the rownames
     rownames_to_column("tmp") %>%
     # occurence of rows more than 0.1 
-    filter(apply(select(., -one_of("tmp")), 1, function(x){sum(x>0)/length(x)}) > 0.1) %>%
+    filter(apply(select(., -one_of("tmp")), 1, 
+		function(x){sum(x[!is.na(x)]>0)/length(x[!is.na(x)])}) > 0.1) %>%
     data.frame(.) %>% 
     column_to_rownames("tmp")
   
-  kru.res <- apply(prf, 1, function(x, grp){
-    dat <- as.numeric(x)
-    # p value; mean+/-sd
-    p <- kruskal.test(x ~ grp)$p.value
+  # join phe & prf by sampleID 
+  datTol <- left_join(phe, 
+  		prf %>% t() %>% data.frame() %>% rownames_to_column("SampleID"),
+		by = "SampleID") %>% arrange(ID, group)
+  idx <- which(colnames(datTol) == "group")
+  datprf <- datTol[, 4:(nrow(prf)+3)] %>% t() %>% data.frame()
+
+  kru.res <- apply(datprf, 1, function(x, grp){
+    dat <- data.frame(y=as.numeric(x), group=grp) %>% na.omit()
+    # p value; mean±sd
+    p <- kruskal.test(y ~ group, data = dat)$p.value
     
-    mn <- tapply(dat, grp, function(x){
+    mn <- tapply(dat$y, dat$group, function(x){
       num = paste(mean(x), "+/-", sd(x))
       return(num)
     })
     res <- c(p, mn)
     return(res)
-  }, grp=phe[, idx]) %>% t(.) %>% data.frame(.) %>%
+  }, datTol[, idx]) %>% t(.) %>% data.frame(.) %>%
     rownames_to_column("tmp") %>% unfactor(.) 
   
   fr <- phe$group 
@@ -135,16 +139,16 @@ TestFun <- function(x, y, Type=TYPE, FILTER=Filter){
           res <- kru.res
           return(res)
       } else {
-          kw.prf <- prf %>% filter(rownames(.) %in% kw$tmp)
+          kw.prf <- datprf %>% filter(rownames(.) %in% kw$tmp)
       }
   } else {
       kw <- kru.res
-      kw.prf <- prf
+      kw.prf <- datprf
   }
   
   post.res <- apply(kw.prf, 1, function(x, grp){
     dat <- data.frame(y=as.numeric(x), group=grp) %>% 
-      unstack() %>% t() %>% t()
+      unstack() %>% t() %>% t() %>% na.omit()
     # p value; mean+/-sd
     p <- posthoc.durbin.test(dat, p.adj="none")$p.value
     p.val <- p[!upper.tri(p)]
@@ -154,8 +158,8 @@ TestFun <- function(x, y, Type=TYPE, FILTER=Filter){
     #   return(num)
     # })
     # res <- c(p.val, mn)
-    return(p.val)
-  }, grp=phe[, idx]) %>% t(.) %>% data.frame(.) %>% 
+    return(c(p.val, nrow(dat)))
+  }, datTol[, idx]) %>% t(.) %>% data.frame(.) %>% 
     unfactor(.)
   
   # names 
@@ -167,7 +171,7 @@ TestFun <- function(x, y, Type=TYPE, FILTER=Filter){
        cl <- c(cl, paste("P.value\n", levels(fr)[i], "vs", levels(fr)[j]))
     }
   }
-  colnames(post.res)[1:n] <- cl
+  colnames(post.res)[1:(n+1)] <- c(cl, "Times")
 
   # cbind results
   res <- left_join(kw, post.res %>% rownames_to_column("tmp"), by = "tmp")

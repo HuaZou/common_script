@@ -27,7 +27,7 @@
 #   version.string R version 3.5.1 (2018-07-02)                              #
 #                                                                            #
 # Packages:                                                                  #
-#   pacman; dplyr; tibble; varhandle                                         #
+#   pacman; dplyr; tibble; varhandle; readr                                  #
 #----------------------------------------------------------------------------#
 
 # clear all vectors
@@ -37,7 +37,7 @@ rm(list = ls())
 if(!require(pacman)){
     install.packages("pacman", dependencies = T)
 }
-pacman::p_load(dplyr, tibble, varhandle)
+pacman::p_load(dplyr, tibble, varhandle, readr)
 
 args <- commandArgs(T)
 
@@ -56,8 +56,9 @@ if (length(args) < 9) {
 }
 
 # prepare for function 
-phen <- read.csv(args[1])                               
-prof <- read.table(args[2], header=T, row.names=1)      
+phen <- read_csv(args[1],  col_types = cols())                               
+prof <- read_delim(args[2], col_types = cols(), delim =  "\t") %>% 
+			column_to_rownames("X1")      
 DNAID <- args[3]	 
 GROUP <- args[4]  	
 TYPE <- args[5]		 

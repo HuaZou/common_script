@@ -12,20 +12,19 @@
 #   out:    result with director")                                           #
 #                                                                            #
 # Output: 14 cols result                                                     #
-#   TYPE:           kind of data                                             #
-#   Estimate:       correlation coefficient                                  #
-#   Naive.S.E:                                                               #
-#   Naive.z:        occurence of two groups                                  #
-#   Robust.S.E.:    both or each group                                       #
-#   Robust.z:       obth or each group                                       #
-#   P.value:        p value                                                  #
+#   TYPE:        kind of data                                                #
+#   Estimate:    correlation coefficient                                     #
+#   Std.err:                                                                 #
+#   Wald:        wald test value                                             #
+#   Pr(>|W|):    wald test p value                                           #
+#   Phenotype:   phenotype name                                              #
 #   FDR:            adjusted P value by BH									                 #
 #                                                                            #
 # R-version:                                                                 #
 #   version.string R version 3.5.1 (2018-07-02)                              #
 #                                                                            #
 # Packages:                                                                  #
-#   pacman; geepack; dplyr; tibble; imputeTS; varhandle                      #
+#   pacman; geepack; dplyr; tibble; imputeTS; varhandle; readr               #
 #----------------------------------------------------------------------------#
 
 # clear all vectors
@@ -35,7 +34,7 @@ rm(list = ls())
 if(!require(pacman)){
   install.packages("pacman", dependencies = T)
 }
-pacman::p_load(geepack, dplyr, tibble, imputeTS, varhandle)
+pacman::p_load(geepack, dplyr, tibble, imputeTS, varhandle, readr)
 
 args <- commandArgs(T)
 
@@ -53,24 +52,35 @@ if (length(args) < 8) {
 }
 
 # prepare for function 
-phen <- read.csv(args[1])                               # necessary
-prof <- read.table(args[2], header=T, row.names=1)      # necessary
-DNAID <- args[3]	 # necessary
-GROUP <- args[4]  	 # necessary
-TYPE <- args[5]		 # necessary
-grp1 <- args[6]		 # necessary	
-grp2 <- args[7]		 # necessary	
-out <- args[8]		 # necessary
+phen <- read.csv(args[1])                               
+prof <- read_delim(args[2], delim = "\t", col_types = cols()) %>% 
+        column_to_rownames("X1")
+DNAID <- args[3]	 
+GROUP <- args[4]  	 
+TYPE <- args[5]		
+grp1 <- args[6]		 	
+grp2 <- args[7]		 	
+out <- args[8]		 
 
 # Judging phenotype with two cols and names are corret
 if (!(length(which(colnames(phen) == "SampleID")) > 0)) {
-  warning("colnames of Your Phenotype doesn't cmontain SampleID")
+  warning(
+  	"colnames of Your `Phenotype` doesn't contain `SampleID`.\n")
+
   colnames(phen)[which(colnames(phen) == DNAID)] <- "SampleID"
 }
 
 if (!(length(which(colnames(phen)=="Stage")) > 0)) {
-  warning("colnames of Your Phenotype doesn't contain Stage")
-  colnames(phen)[which(colnames(phen)==GROUP)] <- "Stage"
+  warning(
+  	"colnames of Your `Phenotype` doesn't contain `Stage`.\n")
+
+  colnames(phen)[which(colnames(phen) == GROUP)] <- "Stage"
+}
+
+# phen less than 3 will stop
+if (length(which(colnames(phen) %in% c("SampleID", "ID", "Stage"))) != 3) {
+    	stop("`phen` without 3 cols.\n",
+		"please check your `GROUP` levels or the number of columns of `phen`.\n")
 }
 
 geeFun <- function(tag, x, y, Type=TYPE, grp1="BASE", grp2="LOW"){
@@ -101,7 +111,7 @@ geeFun <- function(tag, x, y, Type=TYPE, grp1="BASE", grp2="LOW"){
       Stage == grp1 ~ 0,
       Stage == grp2 ~ 1))   
   
-  prf <- y %>% select(colnames(.)[phe$SampleID]) %>%
+  prf <- y %>% select(colnames(.)[colnames(.) %in% phen$SampleID]) %>%
     # resevred the rownames
     rownames_to_column(Type) %>%
     # occurence of rows more than 2 
@@ -112,12 +122,12 @@ geeFun <- function(tag, x, y, Type=TYPE, grp1="BASE", grp2="LOW"){
   # merge data by sampleID
   dat <- left_join(phe, prf %>% rownames_to_column("SampleID"), by="SampleID") %>%
     select(-one_of("SampleID")) %>% rename("id"="ID") %>% 
-    na.replace(., 0)
+    na.replace(., 0) %>% 
+    mutate(group = scale(group, scale = T, center = T))
   
   #scale dat 
-  dat$group <- scale(dat$group, scale = T, center = T)
   datprf <- dat[, c(6:ncol(dat))]
-  datphe <- dat[, c(1:5)] 
+  datphe <- dat[, c(1:5)]  
   datphe$Stage <- factor(datphe$Stage)
   
   # gee calculate
@@ -144,8 +154,7 @@ geeFun <- function(tag, x, y, Type=TYPE, grp1="BASE", grp2="LOW"){
       rename("P.value" = "Pr...W..") %>% 
       slice(2) %>% data.frame(.)
     
-    res <- cbind(enrich, occ[1], occ[2], med,
-              md[1], md[2], men, mn[1], mn[2],
+    res <- c(enrich, occ, med, md, men, mn,
               res.fit[, 1], res.fit[, 2], res.fit[, 3], 
               res.fit[, 4], tag)
     return(res)
@@ -171,4 +180,4 @@ for(i in 1:length(res)){
 }
 
 file <- paste0(out,"/", paste(TYPE, grp1, grp2, "csv", sep="."))
-write.csv(gee.res, file, row.names = T)
+write.csv(gee.res, file, row.names = F)
