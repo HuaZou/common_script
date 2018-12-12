@@ -23,17 +23,18 @@
 #   version.string R version 3.5.1 (2018-07-02)                              #
 #                                                                            #
 # Packages:                                                                  #
-#   pacman; dplyr; tibble; varhandle; PMCMR; readr                           #
+#   dplyr; tibble; varhandle; PMCMR; readr; imputeTS                         #
 #----------------------------------------------------------------------------#
 
 # clear all vectors
 rm(list = ls())
 
 # library function
-if(!require(pacman)){
-    install.packages("pacman", dependencies = T)
-}
-pacman::p_load(dplyr, tibble, varhandle, PMCMR, readr)
+library(dplyr)
+library(tibble)
+library(varhandle)
+library(PMCMR)
+library(readr)
 
 args <- commandArgs(T)
 
