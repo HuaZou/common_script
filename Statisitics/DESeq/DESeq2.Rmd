@@ -1,0 +1,46 @@
+---
+title: "DESeq2.Microbiome"
+output:
+  html_notebook:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
+library(dplyr)
+library(tibble)
+library(DESeq2)
+```
+
+### load data 
+```{r}
+phen <- read.csv("../datset/phenotype/phenotype.grp.csv") 
+gsf <- read.table("Genus.number")
+```
+
+### function
+```{r}
+phe <- phen %>% select(SampleID, ID, Group, Stage) %>% 
+  filter(Stage=="Before")
+prf <- gsf %>% select(as.character(phe$SampleID)) %>%
+          rownames_to_column("tmp") %>%
+          # occurence of rows more  
+          filter(apply(select(., -one_of("tmp")), 1, 
+      		function(x){sum(x[!is.na(x)]>0)/
+      		    length(x[!is.na(x)])}) > 0.5) %>%
+          data.frame(.) %>% 
+          column_to_rownames("tmp") %>% 
+  as.matrix()
+
+phe.cln <- phe %>% select(Group)
+rownames(phe.cln) <- phe$SampleID
+all(rownames(phe.cln) == colnames(prf))
+
+dds <- DESeqDataSetFromMatrix(countData = prf,
+                              colData = phe.cln,
+                              design =~ Group)
+dds <- DESeq(dds)
+res <- results(dds)
+```
+
+

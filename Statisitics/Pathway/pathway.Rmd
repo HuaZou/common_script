@@ -1,0 +1,31 @@
+---
+title: "pathway view"
+output:
+  html_notebook:
+    code_folding: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = F, message = F)
+library(pathview)
+```
+
+### load data 
+
+* row -> ko id 
+* col -> two groups foldchange or z score value 
+```{r}
+kof <- read.table("ETB.wilcox.m6")
+```
+
+### generate png
+```{r}
+prf <- kof[, 5, F] 
+p <- pathview(gene.data = prf,       # row->KO id; col -> z-score
+              pathway.id = "00650",  # pathway number 
+              species = "ko",        # species type  
+              gene.idtype = "kegg",  # kegg 
+              out.suffix = "ETB")    # output suffix
+p
+```
+
