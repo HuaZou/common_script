@@ -20,7 +20,7 @@
 #   median:     both or each group                                           #
 #   mean:       obth or each group                                           #
 #   FDR:        adjusted P value by BH                                       #
-#   95% CI:     glm result for +/- 1.96					     #
+#   95% CI:     glm result for +/- 1.96					                     #
 #   compare: compare information                                             #
 #                                                                            #
 # R-version:                                                                 #
@@ -56,11 +56,11 @@ if (length(args) < 9) {
 }
 
 # prepare for function 
-phen <- read_csv(args[1],  col_types = cols())                               
+phen <- read_csv(args[1],  col_types = cols())
 prof <- read_delim(args[2], col_types = cols(), delim =  "\t") %>% 
 			column_to_rownames("X1")      
 DNAID <- args[3]	 
-GROUP <- args[4]  	
+GROUP <- args[4]
 TYPE <- args[5]		 
 PAIRED <- args[6]	 
 grp1 <- args[7]		 

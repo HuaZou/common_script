@@ -12,11 +12,3 @@ so many notes for me to storage, `github`  is a good place to do this work. Star
 
 
 
-
-
-### Catalog
-
-1. R scripts
-
-
-
