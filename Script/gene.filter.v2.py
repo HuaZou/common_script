@@ -2,7 +2,8 @@
 
 # ==============================================================================
 # gene.filter:
-#               1. filter gene whose length is less than 150bp
+#               1. gene 150bp
+#               2. protein 50bp
 #
 # Authors: ZouHua
 #
@@ -12,8 +13,8 @@
 
 
 __author__ = ('ZouHua (zouhua@genomics.cn)')
-__version__ = '0.1'
-__date__ = '28 12 2018'
+__version__ = '0.2'
+__date__ = '20181228-20190108'
 
 import sys
 import re
@@ -32,7 +33,6 @@ def parse_arguments(args):
     """
     parameters input
     """
-
     parser = ap.ArgumentParser(
         description="DESCRIPTION\n"
         "gene.filter version "+__version__+" ("+__date__+"): \n"
@@ -50,36 +50,56 @@ def parse_arguments(args):
         help="direction of fasta\n",
         required=True)
     parser.add_argument(
+        '-n', '--nucleic', metavar='<nucleic>', type=str,
+        help="nucleic fasta output\n",
+        required=True)
+    parser.add_argument(
+        '-p', '--protein', metavar='<protein>', type=str,
+        help="protein fasta output\n",
+        required=True)
+    parser.add_argument(
         '-v', '--version', action='version',
         version="gene.filter version {} ({})".format(__version__, __date__),
         help="Prints the current gene.filter version and exit")
     return parser.parse_args()
 
 
-def filtergene(infile, dire):
-    dic = fasta(infile, dire)
-    for key, value in dic.items():
-        names = value + ".150.nucleo.fa"
-        filename = "/".join([cwd, dire, value, names])
-        if not os.path.isfile(filename):
-            f = open(filename, "w")
-            for record in SeqIO.parse(key, "fasta"):
-                if len(record.seq) > 150:
-                    SeqIO.write(record, f, "fasta")
-            f.close()
-
-
-def fasta(infile, dire):
+def fasta(infile, dire, num):
+    """
+    consider two types of fasta: nucleic & protein
+    """
     fa = {}
     with open(infile, "r") as f:
         for line in f:
             line = line.strip()
             sample = re.split(r'\s+', line)
-            name = re.split(r'\/', sample[8])[-2]
+            name = re.split(r'\/', sample[num])[-2]
             path = "/".join([cwd, dire, name])
             makedir(path)
-            fa[sample[8]] = name
+            fa[sample[num]] = name
     return(fa)
+
+
+def filter_fasta(fastatype, pathway, suffix, threshold, output):
+    """
+    filter fasta by threshold
+    """
+    outf = open(output, "w")
+
+    for key, value in fastatype.items():
+        names = value + suffix
+        filename = "/".join([cwd, pathway, value, names])
+        if os.path.isfile(filename):
+            outf.write(value + "\t" + filename + "\n")
+        if not os.path.isfile(filename):
+            f = open(filename, "w")
+            for record in SeqIO.parse(key, "fasta"):
+                if len(record.seq) >= threshold:
+                    SeqIO.write(record, f, "fasta")
+            f.close()
+            outf.write(value + "\t" + filename + "\n")
+
+    outf.close()
 
 
 def makedir(path):
@@ -90,7 +110,14 @@ def makedir(path):
 
 def main():
     args = parse_arguments(sys.argv)
-    filtergene(args.infile, args.dire)
+
+    # nucleic fasta
+    nfa = fasta(args.infile, args.dire, 8)
+    filter_fasta(nfa, args.dire, ".ncleo.150.fa", 150, args.nucleic)
+
+    # protein fasta
+    pfa = fasta(args.infile, args.dire, 6)
+    filter_fasta(pfa, args.dire, ".aa.50.fa", 50, args.protein)
 
 
 main()

@@ -14,7 +14,7 @@
 
 __author__ = ('ZouHua (zouhua@genomics.cn)')
 __version__ = '0.2'
-__date__ = '27 12 2018'
+__date__ = '20181227-20190109'
 
 import sys
 import re
@@ -49,7 +49,7 @@ def parse_arguments(args):
     parser.add_argument(
         '-d', '--dire', metavar='<direction>', type=str,
         help="direction of fasta\n",
-        required=True)       
+        required=True)
     parser.add_argument(
         '-o', '--out', metavar='<output>', type=str,
         help="output of gene prediction\n",
@@ -61,7 +61,7 @@ def parse_arguments(args):
     return parser.parse_args()
 
 
-def GenePrediction(infile, dire, out):
+def gene_prediction(infile, dire, out):
     """
     generate shell script for gene prediciton
     """
@@ -70,15 +70,16 @@ def GenePrediction(infile, dire, out):
         for line in f:
             tmp = line.strip()
             sample = re.split(r'\s+', tmp)
-            size = file_size(sample[1])
+            name = re.split("/", sample[0])[-2]
+            size = file_size(sample[0])
             tmp2 = re.split(r'\s+', size)
             # size more than 10 MB
             if tmp2[0] > 10 and tmp2[1] in ['MB', 'GB']:
-                genepath = "/".join([cwd, dire, sample[0]])
+                genepath = "/".join([cwd, dire, name])
                 makedir(genepath)
                 filenumber = judge_file(genepath)
-                if filenumber != 2:
-                    shell = shell_command(genepath, sample[0], sample[1])
+                if filenumber != 3:
+                    shell = shell_command(genepath, name, sample[0])
                     outfile.write(shell+"\n")
     outfile.close()
 
@@ -136,7 +137,7 @@ def shell_command(path, name, fasta):
 
 def main():
     args = parse_arguments(sys.argv)
-    GenePrediction(args.infile, args.dire, args.out)
+    gene_prediction(args.infile, args.dire, args.out)
 
 
 main()

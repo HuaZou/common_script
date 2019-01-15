@@ -51,10 +51,10 @@ def ShannonIndex(prf, col, output):
 	profile.close()
 
 	out = open(output, "w")
-	out.write("Type\tIndex")
+	out.write("Type\tIndex\n")
 	for k, v in shannon.items():
 		res = v[1]/v[0] + log(v[0])
-		out.write("\n" + k + "\t" + str(res))
+		out.write(k + "\t" + str(res) + "\n")
 	out.close()
 
 def CaculateValue(Shan, Sample, number, header):
