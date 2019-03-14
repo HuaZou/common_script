@@ -49,7 +49,7 @@ while(<IN>){
             push(@mode, "PE");            
         }        
     } elsif ($tmp[2] =~ /SINGLE/){
-    my $fq = join(".", $fqpath, "fq.gz");
+        my $fq = join(".", $fqpath, "fq.gz");
         if ($tmp[3] =~ /single/){
             my $outscript = &scriptout($outdir, $tmp[0], $fq, $script);          
             if(defined $outscript){
@@ -72,20 +72,23 @@ foreach my $key1 (0..$#bio){
     my $pro = join("\/", $cwd, $dir, $bio[$key1]);
     foreach my $key2 (0..$#mod){
         if ($mod[$key2] =~ /SE/){
-            my $fq = join(",", @{$hash{$bio[$key1]}{"fq"}{"SE"}});
-            unless(defined $fq){
-                my $outscript = &scriptout($pro, $bio[$key1], $fq, $script);          
+            if (exists $hash{$bio[$key1]}{"fq"}{"SE"}){
+                my $fq = join(",", @{$hash{$bio[$key1]}{"fq"}{"SE"}});
+                my $outscript = &scriptout($pro, $bio[$key1], $fq, $script);         
                 if(defined $outscript){
                     print OUT "$outscript\n";
                 }
-           }
+            }
+
         } elsif($mod[$key2] =~ /PE/){
-            my $fq1 = join(",", @{$hash{$bio[$key1]}{"fq1"}{"PE"}});
-            my $fq2 = join(",", @{$hash{$bio[$key1]}{"fq2"}{"PE"}});
-            my $fqs = join(",", @{$hash{$bio[$key1]}{"fqs"}{"PE"}});
-            my $outscript = &scriptout($pro, $bio[$key1], $fq1, $fq2, $fqs, $script);          
-            if(defined $outscript){
-                print OUT "$outscript\n";
+            if (exists $hash{$bio[$key1]}{"fq1"}{"PE"}){
+                my $fq1 = join(",", @{$hash{$bio[$key1]}{"fq1"}{"PE"}});
+                my $fq2 = join(",", @{$hash{$bio[$key1]}{"fq2"}{"PE"}});
+                my $fqs = join(",", @{$hash{$bio[$key1]}{"fqs"}{"PE"}});
+                my $outscript = &scriptout($pro, $bio[$key1], $fq1, $fq2, $fqs, $script);          
+                if(defined $outscript){
+                    print OUT "$outscript\n";
+                }
             }
         }
     }
