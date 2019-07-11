@@ -20,7 +20,7 @@ library(stringr)
 ###################################################################################
 tukey_plot_significance<-function(data)
   {
-  
+  data <- data_example
   ##Convert 0 values to NA values
   data[data == 0] <- NA
   data_melted <- melt(data)   

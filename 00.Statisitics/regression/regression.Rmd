@@ -1,0 +1,230 @@
+---
+title: "regression"
+output: 
+  html_notebook:
+    codes: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F)
+library(dplyr)
+```
+
+### data 
+```{r}
+dat1 <- data.frame(X1 = c(7, 1, 11, 11, 7, 11, 3, 1, 2, 21, 1, 11, 10), 
+                   X2 = c(26,29, 56, 31, 52, 55, 71, 31, 54, 47, 40, 66, 68), 
+                   X3 = c(6, 15, 8, 8, 6,9, 17, 22, 18, 4, 23, 9, 8), 
+                   X4 = c(60, 52, 20, 47, 33, 22, 6, 44, 22, 26,34, 12, 12), 
+                   Y = c(78.5, 74.3, 104.3, 87.6, 95.9, 109.2, 102.7, 72.5, 93.1, 115.9, 83.8, 113.3, 109.4))
+dat1
+```
+
+### 简单线性回归
+```{r}
+lm1 <- lm(Y~., data = dat1)
+summary(lm1)
+```
+
+首先看模型的整体显著性 p-value: 4.756e-07, 模型通过检验 再看 Adjusted R-Squared: 0.9736, 竟然能解释原始信息的 97.36 %，解释力非常好 最后来看我们关心的 主要影响变量, X1-X4 的 p.value 全部大于临界值 0.05，情何以堪
+
+出现这种情况, 一般会有两种思路: 1.所选变量不足以满足模型需要，需要添加类似(X^2)的变量,但是此模型的解释力达到了 97.36%，所以变量的增加对模型的改进已无多大意义 2.现存变量之间存在共线性问题，就此展开以下讨论
+
+### 检验自变量之间有无共线性
+
+方差膨胀因子VIF是指回归系数的估计量由于自变量共线性使得方差增加的一个相对度量。一般建议，如VIF>10，表明模型中有很强的共线性问题
+```{r}
+library(car)
+vif(lm1)
+```
+
+```{r}
+plot(dat1[, 1:4])
+```
+```{r}
+corrplot::corrplot(cor(dat1[, 1:4]), diag = F)
+```
+
+通过以上的分析，我们可以清楚的知道 X2与X4 X1与X3 都有很强的相关关系
+
+
+### 解决方法1
+
+1. step(lm1)
+```{r}
+lm2 <- step(lm1)
+summary(lm2)
+```
+
+2. 岭回归
+```{r}
+library(glmnet)
+ridg1 <- cv.glmnet(x=model.matrix(~., dat1[, -ncol(dat1)]),
+                   y=dat1$Y,
+                   family='gaussian',
+                   alpha=0,
+                   # nfolds=10
+                   nlambda=50)
+plot(ridg1)
+```
+```{r}
+bestlam1 <- ridg1$lambda.min
+bestlam2 <- ridg1$lambda.1se
+pred.ridg <- predict(ridg1, s=c(bestlam1, bestlam2),
+                     newx=model.matrix(~., dat1[, -ncol(dat1)]))
+
+mean((pred.ridg[, 1]-dat1$Y)^2)
+mean((pred.ridg[, 2]-dat1$Y)^2)
+
+predict(ridg1, s=c(bestlam1, bestlam2),
+        newx = model.matrix(~., dat1[, -ncol(dat1)]),
+        type="coefficients")
+```
+
+3. lasso回归
+```{r}
+library(glmnet)
+laso2 <- cv.glmnet(x=model.matrix(~., dat1[, -ncol(dat1)]),
+                   y=dat1$Y,
+                   family='gaussian',
+                   alpha=1,
+                   nlambda=50)
+plot(laso2)
+```
+```{r}
+bestlam1=laso2$lambda.min
+
+bestlam2=laso2$lambda.1se
+pred.laso <- predict(laso2,s=c(bestlam1,bestlam2),
+             newx=model.matrix(~.,dat1[,-ncol(dat1)]))
+
+mean((pred.laso[,1]-dat1$Y)^2)#当lambda=lambda.min
+mean((pred.laso[,2]-dat1$Y)^2)#当lambda=lambda.lse
+predict(laso2,s=c(bestlam1,bestlam2),
+        newx=model.matrix(~.,dat1[,-ncol(dat1)]),
+        type="coefficients")
+```
+
+
+### regression model validation 
+```{r}
+library(dplyr)
+library(tidyverse)
+library(caret)
+
+# data 
+data("swiss")
+sample_n(swiss, 3)
+
+# model performance 
+set.seed(123)
+train.samples <- swiss$Fertility %>% 
+  createDataPartition(p = 0.8, list = F)
+train.data <- swiss[train.samples, ]
+test.data <- swiss[-train.samples, ]
+# Build the model
+model <- lm(Fertility ~., data = train.data)
+# Make predictions and compute the R2, RMSE and MAE
+predictions <- model %>% predict(test.data)
+data.frame(R2 = R2(predictions, test.data$Fertility),
+            RMSE = RMSE(predictions, test.data$Fertility),
+            MAE = MAE(predictions, test.data$Fertility))
+
+RMSE(predictions, test.data$Fertility)/mean(test.data$Fertility)
+```
+
+
+1. leave one out cross validation method  (LOOCV)
+```{r}
+train.control <- trainControl(method = "LOOCV")
+# Train the model
+model <- train(Fertility ~., data = swiss, method = "lm",
+               trControl = train.control)
+print(model)
+```
+
+2. k-fold cross validation
+```{r}
+# Define training control
+set.seed(123) 
+train.control <- trainControl(method = "cv", number = 10, repeats = 5)
+# Train the model
+model <- train(Fertility ~., data = swiss, method = "glm",
+               trControl = train.control)
+# Summarize the results
+print(model)
+```
+
+```{r}
+seed <- 1809
+set.seed(seed)
+ 
+gen_data <- function(n, beta, sigma_eps) {
+    eps <- rnorm(n, 0, sigma_eps)
+    x <- sort(runif(n, 0, 100))
+    X <- cbind(1, poly(x, degree = (length(beta) - 1), raw = TRUE))
+    y <- as.numeric(X %*% beta + eps)
+    
+    return(data.frame(x = x, y = y))
+}
+ 
+# Fit the models
+require(splines)
+ 
+n_rep <- 100
+n_df <- 30
+df <- 1:n_df
+beta <- c(5, -0.1, 0.004, -3e-05)
+n_train <- 50
+n_test <- 10000
+sigma_eps <- 0.5
+
+n_train <- 100
+xy <- gen_data(n_train, beta, sigma_eps)
+x <- xy$x
+y <- xy$y
+ 
+fitted_models <- apply(t(df), 2, function(degf) lm(y ~ ns(x, df = degf)))
+mse <- sapply(fitted_models, function(obj) deviance(obj)/nobs(obj))
+ 
+n_test <- 10000
+xy_test <- gen_data(n_test, beta, sigma_eps)
+pred <- mapply(function(obj, degf) predict(obj, data.frame(x = xy_test$x)), 
+    fitted_models, df)
+te <- sapply(as.list(data.frame(pred)), function(y_hat) mean((xy_test$y - y_hat)^2))
+ 
+n_folds <- 10
+folds_i <- sample(rep(1:n_folds, length.out = n_train))
+cv_tmp <- matrix(NA, nrow = n_folds, ncol = length(df))
+for (k in 1:n_folds) {
+    test_i <- which(folds_i == k)
+    train_xy <- xy[-test_i, ]
+    test_xy <- xy[test_i, ]
+    x <- train_xy$x
+    y <- train_xy$y
+    fitted_models <- apply(t(df), 2, function(degf) lm(y ~ ns(x, df = degf)))
+    x <- test_xy$x
+    y <- test_xy$y
+    pred <- mapply(function(obj, degf) predict(obj, data.frame(ns(x, df = degf))), 
+        fitted_models, df)
+    cv_tmp[k, ] <- sapply(as.list(data.frame(pred)), function(y_hat) mean((y - 
+        y_hat)^2))
+}
+cv <- colMeans(cv_tmp)
+ 
+require(Hmisc)
+ 
+plot(df, mse, type = "l", lwd = 2, col = gray(0.4), ylab = "Prediction error", 
+    xlab = "Flexibilty (spline's degrees of freedom [log scaled])", main = paste0(n_folds, 
+        "-fold Cross-Validation"), ylim = c(0.1, 0.8), log = "x")
+lines(df, te, lwd = 2, col = "darkred", lty = 2)
+cv_sd <- apply(cv_tmp, 2, sd)/sqrt(n_folds)
+errbar(df, cv, cv + cv_sd, cv - cv_sd, add = TRUE, col = "steelblue2", pch = 19, 
+    lwd = 0.5)
+lines(df, cv, lwd = 2, col = "steelblue2")
+points(df, cv, col = "steelblue2", pch = 19)
+legend(x = "topright", legend = c("Training error", "Test error", "Cross-validation error"), 
+    lty = c(1, 2, 1), lwd = rep(2, 3), col = c(gray(0.4), "darkred", "steelblue2"), 
+    text.width = 0.4, cex = 0.85)
+```
+

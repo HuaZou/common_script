@@ -9,7 +9,8 @@ load("tukeySignificanceLettersFunction.Rdata")
 ###################################################################################
 data_example <- read.table("./data_example.csv", sep =",", header=T)
 
-significance<-tukey_plot_significance(data_example) 
+significance<-
+  
 
 # Extract letters positions
 tukey_letters<-significance$tukey_letters

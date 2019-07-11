@@ -29,9 +29,6 @@ Conditions:
 
 """
 
-
-
-
 import sys
 import re
 import os
