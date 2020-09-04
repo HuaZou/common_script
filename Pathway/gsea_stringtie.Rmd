@@ -1,0 +1,306 @@
+---
+title: "gene-set enrichment analysis"
+date: "Created:2020-7-20 Modified: 2020-8-17"
+output: 
+  html_notebook:
+    codes: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F)
+library(dplyr)
+library(tibble)
+library(data.table)
+library(GSVA)
+```
+
+
+### load data 
+```{r}
+prof <- fread("stringtie_filtered_counts.tsv") %>% 
+    column_to_rownames("V1")
+phen <- read.csv("phenotype.csv")
+
+gene_set <- qusage::read.gmt("msigdb.v7.1.symbols_v2_KEGG.gmt")
+mouse2human <- read.table("gene_mouse2human.tsv", 
+                          sep = "\t", header = T)
+```
+
+
+### expressionset function
+```{r}
+get_expr_Set <- function(x, y, ncount=10, occurrence=0.2){
+  
+  require(convert)
+  prf <- y[rowSums(y) > ncount, ]
+  sid <- intersect(x$SampleID_v2, colnames(y))
+  phe <- x %>% filter(SampleID_v2%in%sid) %>%
+    #arrange(desc(Group)) %>%
+    arrange(factor(Batch, levels = btc)) %>%
+    #arrange(factor(Group, levels = grp)) %>%
+    column_to_rownames("SampleID_v2") 
+  prf.cln <- prf %>% rownames_to_column("tmp") %>% 
+    filter(apply(dplyr::select(., -one_of("tmp")), 1, function(x) {
+            sum(x != 0)/length(x)}) > occurrence) %>%
+    dplyr::select(c(tmp, rownames(phe))) %>%
+    column_to_rownames("tmp")
+  
+  # determine the right order between profile and phenotype 
+  for(i in 1:ncol(prf.cln)){ 
+    if (!(colnames(prf.cln)[i] == rownames(phe)[i])) {
+      stop(paste0(i, " Wrong"))
+    }
+  }
+  
+  # change ensemble id into HGNC symbol
+  mmu_hsa_gene <- inner_join(
+    prf.cln %>% rownames_to_column("geneid"), 
+    mouse2human %>% dplyr::select(ensembl_id_mouse, HGNC_symbol), 
+    by = c("geneid" = "ensembl_id_mouse")) %>%
+    dplyr::select(-geneid)
+  
+  mmu_hsa_gene$median <- apply(mmu_hsa_gene[,-ncol(mmu_hsa_gene)], 1, median)
+  mmu_hsa_gene <- with(mmu_hsa_gene, 
+                       mmu_hsa_gene[order(HGNC_symbol, median, decreasing = T), ])
+  mmu_hsa_gene.new <- mmu_hsa_gene[!duplicated(mmu_hsa_gene$HGNC_symbol), ] %>%
+    dplyr::select(-median)
+  rownames(mmu_hsa_gene.new) <- NULL
+  mmu_hsa_gene.new <- mmu_hsa_gene.new  %>% column_to_rownames("HGNC_symbol")
+  
+  exprs <- as.matrix(mmu_hsa_gene.new)
+  metadata <-  new("AnnotatedDataFrame", data=phe)
+  experimentData <- new("MIAME",
+        name="Hua", lab="Lab",
+        contact="email.cn",
+        title="Experiment",
+        abstract="The gene ExpressionSet",
+        url="www.test.cn",
+        other=list(notes="Created from text files"))
+  expressionSet <- new("ExpressionSet", exprs=exprs,
+                       phenoData=metadata, 
+                       experimentData=experimentData)
+  
+  return(expressionSet)
+}
+gene_expr_set <- get_expr_Set(phen, prof)
+```
+
+
+### pheatmap function
+```{r}
+heatFun <- function(score=ssgsea, 
+                    expr_set=gene_expr_set, 
+                    type="KEGG", 
+                    begin=1, 
+                    end=50, 
+                    num=1){
+  
+  if(num==1){
+    dat_es <- exprs(score) %>% data.frame()%>% 
+      dplyr::slice(grep(type, rownames(.))) %>% 
+      #arrange(rownames(.)) %>%
+      dplyr::slice(c(begin:end))    
+  }else{
+    dat_es <- score
+  }
+  
+  # Choose which column variables you want to annotate the columns by.
+  annotation_col <- data.frame(
+      Batch=factor(expr_set$Batch),
+      Group=factor(expr_set$Group),
+      row.names=colnames(expr_set)
+  )
+  
+  match_color <- function(grp_lab, btc_lab){
+  
+      grp_idx <- pmatch(grp_lab, grp)
+      btc_idx <- pmatch(btc_lab, btc)
+      
+      grp_lab_col <- grp.col[grp_idx]
+      btc_lab_col <- btc.col[btc_idx]
+      
+      return(list(Batch=btc_lab_col,
+                  Group=grp_lab_col))
+  }   
+  ann_colors <- match_color(unique(as.character(expr_set$Group)), 
+                         unique(as.character(expr_set$Batch)))
+ 
+  names(ann_colors$Group) <- unique(as.character(expr_set$Group))
+  names(ann_colors$Batch) <- unique(as.character(expr_set$Batch))
+  
+  require(pheatmap)
+  require(RColorBrewer)
+  pheatmap(mat = dat_es, 
+           color = colorRampPalette(c("#19499B", "white", "#E5211A"))(100),
+           #color = colorRampPalette(brewer.pal(9, "YlOrBr"))(255),
+           scale = "row", # Scale genes to Z-score (how many standard deviations)
+           annotation_col = annotation_col, # Add multiple annotations to the samples
+           annotation_colors = ann_colors,# Change the default colors of the annotations
+           #cluster_row = FALSE,
+           cluster_row = TRUE,
+           treeheight_row = 0,
+           cluster_cols = FALSE,
+           fontsize = 8, # Make fonts smaller
+           cellwidth = 10, # Make the cells wider
+           show_colnames = T,
+           #cutree_col = 4,
+           legend_breaks = c(-3:3),
+           legend_labels = c("-3", "-2", "-1", "0", "1", "2", "3"))
+}
+```
+
+
+### wilcox test function
+```{r}
+wilcoxFun <- function (x, y, DNAID, GROUP, grp1=NULL, grp2=NULL) {
+    
+    phe <- x %>% dplyr::select(c(DNAID, GROUP))
+    colnames(phe)[which(colnames(phe) == DNAID)] <- "SampleID"
+    colnames(phe)[which(colnames(phe) == GROUP)] <- "Stage"
+    if (length(which(colnames(phe) %in% c("SampleID", "Stage"))) != 2) {
+        warning("x without 2 cols: DNAID, GROUP")
+    }
+    if (length(grp1)) {
+        phe.cln <- phe %>% filter(Stage %in% c(grp1, grp2)) %>% 
+            mutate(Stage = factor(Stage, levels = c(grp1, grp2)))
+        pr <- c(grp1, grp2)
+    } else {
+        phe.cln <- phe %>% mutate(Stage = factor(Stage))
+        pr <- levels(phe.cln$Stage)
+    }
+    if (length(levels(phe.cln$Stage)) > 2) {
+        stop("The levels of `group` are more than 2")
+    }
+    sid <- intersect(phe.cln$SampleID, colnames(y))
+    prf <- y %>% dplyr::select(sid) %>% rownames_to_column("tmp") %>% 
+        filter(apply(dplyr::select(., -one_of("tmp")), 1, function(x) {
+            sum(x != 0)/length(x)
+        }) > 0.2) %>% data.frame() %>% column_to_rownames("tmp") %>% 
+        t() %>% data.frame()
+    if (ncol(prf) == 0) {
+        stop("No row of profile to be choosed\n")
+    }
+    mdat <- inner_join(phe.cln %>% filter(SampleID %in% sid), 
+        prf %>% rownames_to_column("SampleID"), by = "SampleID")
+    dat.phe <- mdat %>% dplyr::select(c(1:2))
+    dat.prf <- mdat %>% dplyr::select(-2)
+    res <- apply(dat.prf[, -1], 2, function(x, grp) {
+        dat <- as.numeric(x)
+        p <- signif(wilcox.test(dat ~ grp, paired = F)$p.value, 
+            6)
+        md <- signif(median(dat), 4)
+        mdn <- signif(tapply(dat, grp, median), 4)
+        if (mdn[1] > mdn[2] & p < 0.05) {
+            enrich1 <- pr[1]
+        }
+        else if (mdn[1] < mdn[2] & p < 0.05) {
+            enrich1 <- pr[2]
+        }
+        else if (p > 0.05 | mdn[1] == mdn[2]) {
+            enrich1 <- "No significance"
+        }
+        rk <- rank(dat)
+        rnk <- signif(tapply(rk, grp, mean), 4)
+        if (rnk[1] > rnk[2] & p < 0.05) {
+            enrich2 <- pr[1]
+        }
+        else if (rnk[1] < rnk[2] & p < 0.05) {
+            enrich2 <- pr[2]
+        }
+        else if (p > 0.05 | rnk[1] == rnk[2]) {
+            enrich2 <- "No significance"
+        }
+        occ <- signif(tapply(dat, grp, function(x) {
+            round(sum(x > 0)/length(x), 4)
+        }), 4)
+        res <- c(p, enrich1, enrich2, occ, md, mdn, rnk)
+        return(res)
+    }, dat.phe$Stage) %>% t(.) %>% data.frame(.) %>% rownames_to_column("type") %>% 
+        varhandle::unfactor(.)
+    colnames(res)[2:11] <- c("Pvalue", "Enrich_median", "Enrich_rank", 
+        paste0(pr, "_occurence"), "median_all", paste0(pr, "_median"), 
+        paste0(pr, "_rank"))
+    res$Block <- paste0(pr[1], "_vs_", pr[2])
+    number <- as.numeric(table(dat.phe$Stage))
+    res$Num <- paste0(pr[1], number[1], "_vs_", pr[2], number[2])
+    res.cln <- res %>% dplyr::select(c(1, 12:13, 2:11)) %>% mutate(Pvalue = as.numeric(Pvalue)) %>% 
+        mutate(FDR = p.adjust(Pvalue, method = "BH")) %>% arrange(FDR, 
+        Pvalue)
+    res2 <- res.cln[, c(1:4, 14, 5:13)]
+    dat.prf.cln <- prf[, -1]
+    dat.phe.cln <- dat.phe %>% mutate(Group = ifelse(Stage == 
+        pr[1], 0, 1))
+    idx <- which(colnames(dat.phe.cln) == "Group")
+    glmFun <- function(m, n) {
+        dat.glm <- data.frame(group = m, marker = scale(n, center = T, 
+            scale = T))
+        model <- summary(glm(group ~ marker, data = dat.glm, 
+            family = binomial(link = "logit")))
+        res <- signif(exp(model$coefficients["marker", 1]) + 
+            qnorm(c(0.025, 0.5, 0.975)) * model$coefficients["marker", 
+                1], 2)
+        return(res)
+    }
+    glm_res <- t(apply(dat.prf.cln, 2, function(x, group) {
+        res <- glmFun(group, as.numeric(x))
+        return(res)
+    }, group = dat.phe.cln[, idx]))
+    Odd <- glm_res %>% data.frame() %>% setNames(c("upper", "expected", 
+        "lower")) %>% mutate(`Odds Ratio (95% CI)` = paste0(expected, 
+        " (", lower, ";", upper, ")"))
+    Odd$type <- rownames(glm_res)
+    res_merge <- inner_join(res2, Odd[, c(4:5)], by = "type")
+    res_merge$Enrich_median <- ifelse(res_merge$FDR > 0.05, 
+                                      "No significance", res_merge$Enrich_median)
+    res_merge$Enrich_rank <- ifelse(res_merge$FDR > 0.05, 
+                                    "No significance", res_merge$Enrich_rank)
+    return(res_merge)
+}
+```
+
+
+### The Gene Set Variation Analysis
+```{r}
+gsva <- gsva(gene_expr_set,
+             gene_set,
+             method="gsva",
+             min.sz=5,
+             max.sz=500,
+             kcdf="Poisson")
+```
+
+#### heatmap 
+```{r, fig.width=12, fig.height=6}
+heatFun(score=gsva, expr_set=gene_expr_set, type = "KEGG", begin = 1, end = 40)
+
+heatFun(score=gsva, expr_set=gene_expr_set, type = "KEGG", begin = 41, end = 80)
+
+heatFun(score=gsva, expr_set=gene_expr_set, type = "KEGG", begin = 81, end = 120)
+```
+
+
+### the Single Sample Gene-Set Enrichment Analysis 
+```{r}
+ssgsea <- gsva(gene_expr_set, 
+               gene_set,
+               method="ssgsea", 
+               min.sz=5, 
+               max.sz=500,
+               kcdf="Poisson")
+```
+
+
+#### heatmap 
+```{r, fig.width=12, fig.height=6}
+heatFun(score=ssgsea, expr_set=gene_expr_set, type = "KEGG", begin = 1, end = 40)
+
+heatFun(score=ssgsea, expr_set=gene_expr_set, type = "KEGG", begin = 41, end = 80)
+
+heatFun(score=ssgsea, expr_set=gene_expr_set, type = "KEGG", begin = 81, end = 120)
+```
+
+
+### version
+```{r}
+sessionInfo()
+```
