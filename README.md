@@ -2,7 +2,22 @@
 
 The scripts are used to deal with data in my daily work
 
-[[_TOC_]]
+- [Script for daily routine](#script-for-daily-routine)
+  - [Merging metaphlan](#merging-metaphlan)
+  - [Merging humann](#merging-humann)
+  - [Calculating md5sum of csv file](#calculating-md5sum-of-csv-file)
+  - [Generating phyloseq object in BJ GI cancer](#generating-phyloseq-object-in-bj-gi-cancer)
+  - [Summarizing accounts of patients and samples in BJ GI cancer](#summarizing-accounts-of-patients-and-samples-in-bj-gi-cancer)
+  - [Plotting swimming plot in in BJ GI cancer](#plotting-swimming-plot-in-in-bj-gi-cancer)
+  - [Obtaining Reads' status from metaphlan pipeline](#obtaining-reads-status-from-metaphlan-pipeline)
+  - [phyloseq for BJ GI for three types' dataset](#phyloseq-for-bj-gi-for-three-types-dataset)
+  - [Integrating phyloseq object per taxa levels into list object](#integrating-phyloseq-object-per-taxa-levels-into-list-object)
+  - [Summarizing accounts of patients and samples in BJ GI cancer (version 2)](#summarizing-accounts-of-patients-and-samples-in-bj-gi-cancer-version-2)
+  - [checking whether the sra files were successfully downloaded](#checking-whether-the-sra-files-were-successfully-downloaded)
+  - [converting sra into fastq](#converting-sra-into-fastq)
+  - [scp file between local and remote](#scp-file-between-local-and-remote)
+  - [rsync files between source and destination directory](#rsync-files-between-source-and-destination-directory)
+  - [batch run for scripts](#batch-run-for-scripts)
 
 ## Merging metaphlan
 ```bash
