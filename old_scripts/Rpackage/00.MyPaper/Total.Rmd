@@ -1,0 +1,653 @@
+---
+title: "Cbind Result"
+output:
+  html_notebook:
+    codes: hide
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning = F, message = F, echo = F)
+
+# prepare packages 
+packages <- c("ggplot2", "dplyr", "Hmisc", "ape", 
+              "imputeTS", "reshape2", "tibble",
+              "vegan", "ggforce", "RColorBrewer",
+              "PMCMR")
+if (length(setdiff(packages, rownames(installed.packages()))) > 0) {
+  install.packages(setdiff(packages, rownames(installed.packages())))  
+}
+
+# packages in bioconductor
+if (length(setdiff("limma", rownames(installed.packages()))) > 0) {
+  source("https://bioconductor.org/biocLite.R")
+  biocLite("limma") 
+}
+
+
+if (!require("MyPaper")) {
+  install.packages("PACKAGE/MyPaper_0.0.1.zip", 
+                  repos = NULL, type = "win.binary")
+}
+
+
+library(MyPaper)
+library(ggplot2)
+```
+
+```{r}
+### load data 
+# phenotype
+data(phen)
+
+# stage 
+data(stage.total)
+data(stage.bl)
+data(stage.lw)
+data(stage.bw)
+
+# color
+data(color.total)
+data(color.bl)
+data(color.lw)
+data(color.bw)
+data(color.15)
+
+# tax profile table 
+data(spf)
+data(gsf)
+data(gmf)
+data(kof)
+
+# annotation for Tax, KO, GMM
+data(anno)
+data(anno_ko)
+data(anno_gmm)
+```
+
+```{r}
+### BMI 
+
+# theme
+Theme_BMI <- theme(
+      plot.title = element_text(size = 12, color="black", hjust = 0.5, face="bold"),
+      axis.title = element_text(size=10, color="black", face="bold"),
+      axis.text = element_text(size=9, color="black", face="bold"),
+      text = element_text(size=8, color="black"),
+      strip.background = element_rect(fill="lightblue", color="black"),
+      strip.text = element_text(size = rel(1.5), face = "bold"),      
+      legend.background = element_rect(fill="white", color = "black"))
+
+
+BMI.box <- BMIBox(phen, "BMI", stage.total, color.total, 2, Theme_BMI)
+bl.BMI.box <- BMIBox(phen, "BMI", stage.bl, color.bl, 2, Theme_BMI)
+lw.BMI.box <- BMIBox(phen, "BMI", stage.lw, color.lw, 2, Theme_BMI)
+
+BMI.ratio <- BMIRatio(phen, Theme_BMI)
+```
+
+```{r}
+### Alpha diversity
+
+# tax shannon index 
+data(sp.index)
+data(gs.index)
+
+# theme 
+Theme_Alpha <- theme(axis.title = element_text(size=10, color="black", face="bold"),
+          axis.text = element_text(size=9, color="black", face = "bold"),
+          text = element_text(size=8, color="black"),
+          panel.grid = element_blank())
+
+phen_alpha <- phen %>% 
+          select("PID", "SampleID", "ID", "Age", "Stage", 
+                 "Gender", "Group", "Index", "Gene_count") %>%
+          mutate(Gene_count = round(Gene_count / 1000), 
+                 Stage = factor(Stage, levels = stage.total))
+
+# index 
+Alpha.box <- AlphaBox(phen, "Index", stage.total, color.total, Theme_Alpha, 1)
+
+# Richness
+Count.box <- AlphaBox(phen_alpha, "Gene_count", stage.total, color.total, Theme_Alpha, 2) 
+```
+
+```{r}
+### Beta diversity
+
+# gene bray distance 
+data(gene.bray)
+
+# theme
+Theme_Beta <- theme(axis.title = element_text(size=10, color="black", face="bold"),
+          axis.text = element_text(size=9, color="black", face = "bold"),
+          text = element_text(size=8, color="black"),
+          panel.grid = element_blank(),
+          legend.text=element_text(size=10, color = "black"),
+          legend.position = c(1, 0),
+          legend.justification = c(1, 0),
+          legend.background = element_rect(color = "black", fill="white"))
+
+# beta diversity
+Beta.box <- BetaBox(phen, gene.bray, stage.total, color.total, Theme_Beta)
+
+# PCoA
+gene.pcoa <- TaxPCoA(phen, gene.bray, Theme_Beta, F) 
+```
+
+```{r}
+### Cpmpare  Amino acids
+
+# gee in AA 
+data(bl.aa.gee)
+data(lw.aa.gee)
+
+# wilcox test in Amino acids 
+data(bl.aa.t)
+data(lw.aa.t)
+
+# theme
+Theme_AA_Mean <- theme(
+      plot.title = element_text(size = 12, color="black", hjust = 0.5, face="bold"),
+      axis.title = element_text(size=10, color="black", face="bold"),
+      axis.text = element_text(size=9, color="black", face="bold"),
+      text = element_text(size=8, color="black"),
+      strip.text= element_blank(),
+      strip.background = element_blank(),
+      panel.grid = element_blank(),
+      legend.position = c(1, 0.65),
+      legend.justification = c(1, 1),
+      legend.background = element_rect(fill="white", color = "black"))
+
+Theme_AA_Bar <- theme(
+      plot.title = element_text(size = 12, color="black", hjust = 0.5, face="bold"),
+      axis.title = element_text(size=10, color="black", face="bold"),
+      axis.text.x = element_text(size=9, color="black", 
+                                 angle=45, vjust=.99, hjust=1, face="bold"),
+      axis.text.y = element_text(size=9, color="black", face="bold"),
+      text = element_text(size=8, color = "black"),
+      panel.grid = element_blank(),
+      legend.position = c(0, 1),
+      legend.justification = c(0, 1),
+      legend.background = element_blank())
+
+# barplot for all
+AABarEach <- AAMeanBarplotEach(phen, Theme_AA_Mean)
+
+# barplot for each 
+bl.AA.bar <- AABarError(phen, stage.bl, color.bl, 3, Theme_AA_Bar)
+lw.AA.bar <- AABarError(phen, stage.lw, color.lw, 3, Theme_AA_Bar)
+```
+
+
+```{r, fig.width=12, fig.height=7}
+### cpmpare  gut microbiota
+# wilcox test in species 
+data(bl.sp.t)
+data(lw.sp.t)
+data(bw.sp.t)
+
+# theme
+Theme_20 <- theme(axis.title = element_text(size=10, color="black", face="bold"),
+      axis.text = element_text(size=9, color="black",  face="bold"),
+      text = element_text(size=8, color = "black"),
+      panel.grid = element_blank(),
+      legend.position = "bottom",
+      legend.text = element_text(size = 6.5, color = "black"))
+
+Theme_Vol <- theme(axis.title = element_text(size=10, color="black", face="bold"),
+      axis.text.y = element_text(size=9, color="black", face="bold"),
+      text = element_text(size=8, color = "black"),
+      panel.grid = element_blank(),
+      legend.position = c(1, 0),
+      legend.justification = c(1, 0),
+      legend.background = element_rect(size=0.5, color="black", fill="white"))
+
+Theme_Tax_Box <- theme(axis.title = element_text(size=10, color="black", face="bold"),
+      axis.text.x = element_text(size=9, color="black", 
+                                 angle=90, vjust=.5, hjust=1, face="bold"),
+      axis.text.y = element_text(size=9, color="black", face="bold"),
+      text = element_text(size=8, color = "black"),
+      panel.grid = element_blank(),
+      legend.position = c(0, 1),
+      legend.justification = c(0, 1),
+      legend.background = element_blank())
+
+# top 20 
+sp.bar.20 <- Tax20AbunBar(phen, spf, Theme_20)
+gs.bar.20 <- Tax20AbunBar(phen, gsf, Theme_20)
+
+# volcano 
+bl.sp.voc <- TaxVolcano(bl.sp.t, stage.bl, color.bl, "Species", Theme_Vol)
+lw.sp.voc <- TaxVolcano(lw.sp.t, stage.lw, color.lw, "Species", Theme_Vol)
+
+# boxplot
+bl.sp.box <- TaxBox(phen, spf, stage.bl, color.bl, bl.sp.t, Theme_Tax_Box) 
+lw.sp.box <- TaxBox(phen, spf, stage.lw, color.lw, bl.sp.t, Theme_Tax_Box, 2)
+
+# heatmap
+#TaxAbunHeat(phen, spf, bl.sp.t, lw.sp.t) 
+
+# log2fold change
+sp.FC <- TaxCorAbun(bl.sp.t, lw.sp.t, stage.bl, stage.lw)
+```
+
+
+
+```{r}
+### association  amino acids & BMI 
+
+# permanova 
+data(b.aa.per)
+data(l.aa.per)
+data(w.aa.per)
+
+# PERMANOVA
+per.aa <- dplyr::left_join(b.aa.per, 
+                dplyr::left_join(l.aa.per, w.aa.per, 
+                                          by = "Phenotype"), 
+                    by="Phenotype")
+#DT::datatable(per.aa, rownames = F)
+
+# theme
+Theme_AA_Scatter <- theme(axis.title=element_text(size=10, color="black", face="bold"),
+      axis.text=element_text(size=9, color="black", face="bold"),
+      panel.grid = element_blank())
+
+# BMI & Glu
+bl.BMI.Glu <- AAScatterPheno(phen, "BMI", "Glutamate", 
+                stage.bl, color.bl, 
+                bl.aa.gee, Theme_AA_Scatter)
+lw.BMI.Glu <- AAScatterPheno(phen, "BMI", "Glutamate", 
+                stage.lw, color.lw, 
+                lw.aa.gee, Theme_AA_Scatter)
+BMI.Glu <- cowplot::plot_grid(bl.BMI.Glu, lw.BMI.Glu, ncol = 1,
+                   align = "hv")
+
+# BMI & Pro
+bl.BMI.Pro <- AAScatterPheno(phen, "BMI", "Proline", 
+                 stage.bl, color.bl, 
+                bl.aa.gee, Theme_AA_Scatter, 2)
+lw.BMI.Pro <- AAScatterPheno(phen, "BMI", "Proline", 
+                stage.lw, color.lw,  
+                lw.aa.gee, Theme_AA_Scatter, 2)
+
+
+BMI.Pro <- cowplot::plot_grid(bl.BMI.Pro, lw.BMI.Pro, ncol = 1,
+                   align = "hv")
+```
+
+
+```{r, fig.width=8, fig.height=12}
+### association  gut microbiome
+# TaxCorPhe(phen, spf, bl.aa.t, bl.sp.t, stage.bl, color.bl)
+# 
+# TaxCorPhe(phen, spf, bl.aa.t, lw.sp.t, stage.lw, color.lw)
+```
+
+```{r}
+### Pathway  gut metabolic modules
+
+# GMM wilcox
+data(bl.gm.t)
+data(lw.gm.t)
+data(bw.gm.t)
+
+# KO 
+data(bl.ko.t)
+data(lw.ko.t)
+data(bw.ko.t)
+
+# reporter score 
+data(bl.path.score)
+data(lw.path.score)
+data(bl.modu.score)
+data(lw.modu.score)
+
+# KO species 
+data(M27.K01668.spf)
+data(M38.K00789.spf)
+data(M66.K07404.spf)
+
+# theme 
+Theme_Score <- theme(axis.title = element_text(size=10, color="black", face="bold"),
+        axis.text = element_text(size=9, color="black", face="bold"),
+        text = element_text(size=9, color="black"),
+        strip.background = element_blank(),
+        strip.text = element_text(size=rel(1.5), color="black", face="bold"),
+        legend.position = c(1, 0.05),
+        legend.justification = c(1, 0.05))
+
+Theme_gm_box <- theme(axis.text.x=element_text(size=9, color="black", 
+                      angle=0, vjust=.2, hjust=.5, face="bold"),
+          axis.text.y=element_text(size=9, color="black", face="bold"),
+          panel.grid = element_blank(),
+          legend.position = c(0,1),
+          legend.justification = c(0,1),
+          legend.background = element_blank())
+
+Theme_KO <- theme(axis.title=element_text(size=10, color="black"),
+          axis.text.x=element_text(size=9, color="black",
+                angle=0, vjust=1, hjust=.5, face="bold"),
+          axis.text.y=element_text(size=9, color="black", face="bold"),
+          panel.grid = element_blank(),
+          legend.position = c(0,1),
+          legend.justification = c(0,1),
+          legend.background = element_blank())
+
+Theme_KO_20 <- theme(plot.title = element_text(size=12, color="black", hjust=0.5),
+          axis.title = element_text(size=10, color="black", face="bold"),
+          axis.text = element_text(size=9, color="black", face="bold"),
+		      legend.background = element_blank(),
+		      legend.position = "bottom",
+		      legend.text = element_text(size=6.5, color="black"),
+          text = element_text(size=8, color="black", face="bold"))
+
+
+# pathway 
+bl.path.bar <- ScoreBar(bl.path.score, stage.bl, color.bl, "Pathway", 1, Theme_Score)
+lw.path.bar <- ScoreBar(lw.path.score, stage.lw, color.lw, "Pathway", 2, Theme_Score)
+
+# module 
+bl.modu.bar <- ScoreBar(bl.modu.score, stage.bl, color.bl, "Module", 4, Theme_Score, 2)
+lw.modu.bar <- ScoreBar(lw.modu.score, stage.lw, color.lw, "Module", 5, Theme_Score, 2)
+
+# GMMs 
+bl.gm.box <- GMMBox(phen, gmf, bl.gm.t, stage.bl, color.bl, Theme_gm_box, 1)
+lw.gm.box <- GMMBox(phen, gmf, bl.gm.t, stage.lw, color.lw, Theme_gm_box, 2)
+lw.gm.box2 <- GMMBox(phen, gmf, lw.gm.t, stage.lw, color.lw, Theme_gm_box, 1)
+
+# KO K01668
+bl.MF0027 <- GMM2KOAbunbox(phen, kof, "K01668", bl.ko.t, stage.bl, color.bl, Theme_KO)
+lw.MF0027 <- GMM2KOAbunbox(phen, kof, "K01668", lw.ko.t, stage.lw, color.lw, Theme_KO)
+
+# KO K07404
+MF0066_KO <- c("K07404")
+bl.MF0066 <- GMM2KOAbunbox(phen, kof, MF0066_KO, bl.ko.t, stage.bl, color.bl, Theme_KO)
+lw.MF0066 <- GMM2KOAbunbox(phen, kof, MF0066_KO, lw.ko.t, stage.lw, color.lw, Theme_KO)
+
+# KO K00789
+MF0038_KO <- c("K00789")
+bl.MF0038 <- GMM2KOAbunbox(phen, kof, MF0038_KO, bl.ko.t, stage.bl, color.bl, Theme_KO)
+lw.MF0038 <- GMM2KOAbunbox(phen, kof, MF0038_KO, lw.ko.t, stage.lw, color.lw, Theme_KO)
+
+# M27.K01668
+bl.M27.K01668.sp.bar <- GMM2TaxBar(phen, M27.K01668.spf, stage.bl, 
+          "MF0027.K01668\ntyrosine phenol-lyase", Theme_KO_20, 1)
+lw.M27.K01668.sp.bar <- GMM2TaxBar(phen, M27.K01668.spf, stage.lw,
+          "MF0027.K01668\ntyrosine phenol-lyase", Theme_KO_20, 1)    
+
+# M38.K00789
+bl.M38.K00789.sp.bar <- GMM2TaxBar(phen, M38.K00789.spf, stage.bl,
+        "MF0038.K00789\nS-adenosylmethionine synthetase", Theme_KO_20, 2)
+lw.M38.K00789.sp.bar <- GMM2TaxBar(phen, M38.K00789.spf, stage.lw,
+        "MF0038.K00789\nS-adenosylmethionine synthetase", Theme_KO_20, 2)
+
+# M66.K07404
+bl.M66.K07404.sp.bar <- GMM2TaxBar(phen, M66.K07404.spf, stage.bl,
+              "MF0066.K07404\n6-phosphogluconolactonase", Theme_KO_20, 2)
+lw.M66.K07404.sp.bar <- GMM2TaxBar(phen, M66.K07404.spf, stage.lw, 
+              "MF0066.K07404\n6-phosphogluconolactonase", Theme_KO_20, 2)
+
+# ko enrich 
+bl.ko.en <- KO2Enrich(bl.ko.t, stage.bl)
+lw.ko.en <- KO2Enrich(lw.ko.t, stage.lw)
+
+# ko overlap 
+bl.lw.ko.lap <- KOoverlap(bl.ko.t, lw.ko.t, stage.lw, color.lw)
+```
+
+### Cohort Description
+
+| Table 1. cohort Description |             |
+| --------------------------- | ----------- |
+|                             | cohort      |
+|                             | (Mean ± SD) |
+| Number of  subjects (n)     | 47          |
+| Sex (% male)                | 48%         |
+| Age (y)                     | 30.48±6.67  |
+| Weight (kg)                 | 67.84±12.84 |
+| BMI (kg/m2)                 | 24.7±3.42   |
+
+
+
+### Figure 
+
+
+#### Figure  1
+
+<div align=center>
+![**Figure 1 Study Design**. The figure presents details of study recruitment and allocation of participants to LCRDI. Criterions for volunteers and completion numbers are also outlined.](image/experiment_degin.svg){height="600px" width="600px"}
+</div>
+
+
+
+#### Figure 2 
+
+**Figure 2 Low Calorie Restricted Dietary Intervention alters BMI and circulating amino acids**. A-B, showing BMI and circulating amino acids significantly changed. Two-tailed Paired Wilcoxon rank-sum test, \*p<0.05, \*\*p<0.01, \*\*\*p<0.001, \*\*\*\*p<0.0001.
+
+```{r, fig.width=10, fig.height=7}
+cowplot::plot_grid(bl.BMI.box, bl.AA.bar, 
+                   rel_widths = c(1, 3), align = "hv",
+                   labels = c("A", "B"), axis = "b")
+```
+
+#### Conclusion
+
+* Calorie Restricted diet led to BMI loss.
+
+* Calorie Restricted diet caused that 16 of 20 circulating amino acids increased and 4 of 20 amino acids
+ including Hydroxyproline,Glutamate,Tyrosine,Proline decreased.
+
+
+
+#### Figure 3
+
+**Figure 3 Gut microbiota species Composition alters during the study**. A, boxplot shows significant difference Species by Low Calorie Restricted Dietary Intervention. Two-tailed Paired Wilcoxon rank-sum test was used, \*p<0.05, \*\*p<0.01. B, Heatmap showing changes in the abundance of significant species after LCRD and Washout (only occurrence > 0.2 are shown), LOW: Low as compared to BASE; WASH: WASH as compared to LOW. Two-tailed Paired Wilcoxon rank-sum test was used, *p<0.05, +p<0.01, #p<0.001. C-D, the statistical significance (y axis) and log2fold-change (x axis) of species between two stages. E, Spearman correlation between microbial changes observed at LOW as compared to BASE; WASH as compared to LOW.
+
+```{r, fig.width=12, fig.height=7}
+bl.sp.box
+TaxAbunHeat(phen, spf, bl.sp.t, lw.sp.t)
+cowplot::plot_grid(bl.sp.voc, lw.sp.voc, sp.FC, ncol = 3,
+                align = "hv", labels = c("C", "D", "E"))
+```
+
+#### Conclusion
+
+* 19 gut species whose occurence were more than 0.3 significantly altered by Calorie Restricted diet.What's more, [Methanobrevibacter smithii](https://www.ncbi.nlm.nih.gov/pubmed/17563350) which is related to calorie harvest (enriching in Obese compared to lean population) enriched in LOW , a period with lack of Calorie. Furthermore, [Turicibacter sanguinis](https://www.ncbi.nlm.nih.gov/pubmed/12148638), species utilize the only carbohydrates including Maltose, 5-ketogluconate to metabolic enriched in BASE, a period with enough carbohydrates. 
+
+* [Lactobacillus fermentum](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2670518/) has been identified as potential probiotic, but decreased by CR.
+
+* [Staphylococcus aureus](https://iai.asm.org/content/77/10/4256) has been related to TCA metabolic and enriched in LOW.
+
+* 19 and 25 gut species significantly altered by CR and Washout, respectively. And the overlap of species in the both diet were less, meaning the effects on CR was defferent.
+
+* To further investigate the correlation of two diet, taking the log2fold-change in each diet and the rho and pvalue of spearman correlation showed the significant negative.
+ 
+
+#### Figure 4
+
+**Figure 4 Association between BMI and Blood amino acids during study**. A-B, Scatter plot of BMI against the concentrations of amino acids between BMI and Glutamate, BMI and Proline by LOW and WASH in each subjects. Left and right scatter plots reflect association between changes in two amino acids and changes in BMI be calculated by the GEE model. Box plots on the left of each scatter plot denote BMI in the subjects; box plots below each scatter plot denote the concentrations of the Glutamate and Proline in the corresponding subjects.
+
+```{r, fig.width=10, fig.height=10}
+cowplot::plot_grid(BMI.Glu, BMI.Pro, ncol = 2,
+                align = "hv", labels = c("A", "B"))
+```
+
+#### Conclusion
+
+* [Glutamate](https://www.ncbi.nlm.nih.gov/pubmed/28628112) has been associated with BMI loss. BMI and Glu had significant positive association only in CR diet. At the same time, BMI and Proline had the same relationship, which could't maintain in Washout diet. 
+
+#### Figure 5
+
+**Figure 5 Associations of gut microbial species with BMI and circulating amino acids by Low during Low Calorie Restricted Dietary Intervention**. Heat map showing Spearman’s rank correlation coefficient of Delta value between 30 gut Species and BMI, circulating amino acids during LCRDI. Spearman Correlation coefficient; \*p<0.05; +p<0.01; #p<0.001. \*, \*\*, \*\*\* denotes gut species that were selected by two-tailed Paired Wilcoxon rank-sum test (p < 0.05) between two stages during the study. Gut species in blue and red denote BASE-enriched and LOW-enriched species, respectively (BASE, n = 47; LOW, n = 47; two-tailed Paired Wilcoxon rank-sum test). 
+
+```{r, fig.width=8, fig.height=12}
+TaxCorPhe(phen, spf, bl.aa.t, bl.sp.t, stage.bl, color.bl)
+```
+
+#### Conclusion
+
+* Methanobrevibacter smithii had significant negative association with Leucine and Taurine.
+
+* Turicibacter sanguinis had significant negative association with Glycine and significant positive association with Tyrosine.
+
+* Lactobacillus fermentum had significant negative association with Serine and significant positive association with BMI. 
+
+* Veillonella parvula had significant negative association with Methionine.
+
+* Staphylococcus aureus had significant positiove association with Aspartate and Glutamate.
+
+#### Figure 6
+
+**Figure 6 Low Calorie Restricted Dietary Intervention promotes functional shifts in the gut microbiota**. A, all significantly altered gut metabolic modules by LCRD. B. significant KOs of All significantly altered gut metabolic modules by LCRD. C. Species annotated to significant KOs. by two-tailed Paired Wilcoxon rank-sum test; \*p<0.05, \*\*p<0.01.
+
+```{r, fig.width=15, fig.height=15}
+cowplot::plot_grid(bl.gm.box, 
+                   cowplot::plot_grid(
+                      bl.MF0027, bl.M27.K01668.sp.bar,
+                      bl.MF0038, bl.M38.K00789.sp.bar,
+                      bl.MF0066, bl.M66.K07404.sp.bar,
+                      ncol = 2, align = "v", 
+                   labels = c("B", "C", "", "", "", ""),
+                   rel_widths = c(1, 3)),
+                   ncol = 1, align = "none", 
+                   labels = c("A", ""),
+                   rel_heights = c(1, 2))
+```
+
+#### Conclusion
+
+* 3 gut metabolic modules significantly altered by Calorie Restricted. MF0066 involved in energy metabolism decreased by CR. MF0027 involved in tyrosine degradation decreased by CR, consistant with the concentration of Tyrosine. MF0038 involved in methinoine degradation increased by CR, consistant with the concentration of Methinoine. 
+
+* significant KO of GMM with species were changed by CR.
+
+
+### Supplemental Figure 
+
+
+#### Supplemental Figure 1
+
+<div align=center>
+![**Supplemental Figure 1 Study Design**. Illustration of Experimental design. A trial comparing the effects of 3-week Low Calorie Restricted Dietary Intervention on multiple clinical and gut microbiome parameters. The black points represent the data of weight which collected each day. The gray points and yellow points represent amino acids which extracted from blood and fecal samples in end of each stage, respectively. The red points represent meals which are formula-based and balanced according to Dietary Guidelines for Chinese Residents (2016) for each meal throughout entire study.](image/Experiment.svg){height="600px" width="600px"}
+</div>
+
+
+
+#### Supplemental Figure 2 
+
+<div align=center>
+![**Supplemental Figure 2 Analysis schematics**. The arrows represent the associations tested in the present study. Arrow 1 represents the primary analysis of effects of BMI by LCRD Intervention. Results of arrow 1 analyses are presented in Fig2A, supplemental table 2, SFig3A. Arrow 2 represents the primary analysis of effects of circulating amino acids by LCRD intervention. Results of arrow 2 analyses are presented in Fig2B, supplemental table 2, SFig3B. Arrow 3 represents the primary analysis of effects of gut microbiota by LCRD intervention.](image/Analysis schematics.svg){height="600px" width="600px"}
+</div>
+
+
+
+#### Supplemental Figure 3
+
+**Supplemental Figure 3 Dietary intervention and Washout changes BMI and circulating amino acids**. A-B, showing BMI and some of circulating amino acids which significantly changed in LCRD remain stable. Two-tailed Paired Wilcoxon rank-sum test was used, ns: no significance, \*p<0.05, \*\*p<0.01, \*\*\*p<0.001, \*\*\*\*p<0.0001.  C, Mean untransformed concentrations of amino acids at baseline and follow-up stages. D, Percentages of Weight changes during study. 
+
+```{r, fig.width=12, fig.height=18}
+# cowplot::plot_grid(lw.BMI.box, lw.AA.bar, 
+#                    rel_widths = c(1, 3), align = "hv",
+#                    labels = c("A", "B"), axis = "b")
+# BMI.ratio
+# AABarEach
+
+cowplot::plot_grid( cowplot::plot_grid(lw.BMI.box, lw.AA.bar, 
+                   rel_widths = c(1, 3), align = "hv",
+                   labels = c("A", "B"), axis = "b"), 
+                   BMI.ratio, AABarEach, 
+                   ncol = 1, 
+                   labels = c("", "C", "D"),
+                   align = "none", 
+                   rel_heights = c(0.9, 1, 1.7))
+```
+
+
+
+#### Supplemental Figure 4
+
+**Supplemental Figure 4 Gut microbial alterations throughout the Entire Study**. A, unconstrained PCoA of gut microbiota genes. Principal coordinate analysis of microbiota genes throughout the trial (N = 47). Shadow encompass the range of changes in the microbiota of each individual as measured across three gut microbiome samples, indicating that the overall microbiome signature of subjects changes unique throughout the study (ANOVA p < 10e-20 on each PCoA). B-D, Beta-diversity, Shannon a-diversity, Gene Richness are no significant difference. two-tailed Paired Wilcoxon rank-sum test was used, ns: no significance. E-F, Stacked column bar graphs depict the Relative abundance of the top 20 gut genera and species before and after Dietary Intervention.
+
+```{r, fig.width=12, fig.height=18}
+cowplot::plot_grid(
+ cowplot::plot_grid(gene.pcoa, Beta.box, 
+                   Alpha.box, Count.box, 
+                   ncol = 4, align = "h",
+                   rel_widths = c(2.5, rep(1, 3)),
+                   labels = c("A", "B", "C", "D")),
+             gs.bar.20, sp.bar.20,
+             ncol = 1, align = "none",
+             rel_heights = c(1, rep(1.2, 2)),
+             labels = c("", "E", "F")
+)
+```
+
+
+
+#### Supplemental Figure 5
+
+**Supplemental Figure 5 Gut microbiota species Composition alters during washout**. A, boxplot showing significant difference species by LCRD alters during washout. Two-tailed Paired Wilcoxon rank-sum test was used, ns: no significance, \* p<0.05, \*\* p<0.01, \*\*\*p<0.001.
+
+```{r, fig.width=10, fig.height=7}
+lw.sp.box
+```
+
+
+
+#### Supplemental Figure 6
+
+**Supplementary Figure 6 Associations of gut microbial species with BMI and circulating amino acids during Washout**. A, Heat map showing Spearman’s rank correlation coefficient of Delta value between 26 gut Species and BMI, circulating amino acids during Washout. Spearman Correlation coefficient; \*p<0.05; +p<0.01; #p<0.001. \*, \*\*, \*\*\* denotes gut species that were selected by two-tailed Paired Wilcoxon rank-sum test (p < 0.05) between two stages during the study. Gut species in blue and red denote LOW-enriched and WASH-enriched species, respectively (LOW, n = 47; WASH, n = 47; two-tailed Paired Wilcoxon rank-sum test). 
+
+```{r, fig.width=8, fig.height=12}
+TaxCorPhe(phen, spf, bl.aa.t, lw.sp.t, stage.lw, color.lw)
+```
+
+
+
+#### Supplemental Figure 7
+
+**Supplemental Figure 7 Significant gut metabolic modules alter in washout**. A, Significant gut metabolic modules which are shifted by LCRD altered in washout. B, Significant KOs of gut metabolic modules which are shifted by LCRD altered in washout. C. Species annotated to significant KOs. Two-tailed Paired Wilcoxon rank-sum test, ns: no significance, \*p<0.05, \*\*p<0.01, \*\*\*p<0.001.
+
+```{r, fig.width=15, fig.height=15}
+cowplot::plot_grid(lw.gm.box, 
+                   cowplot::plot_grid(
+                      lw.MF0027, lw.M27.K01668.sp.bar,
+                      lw.MF0038, lw.M38.K00789.sp.bar,
+                      lw.MF0066, lw.M66.K07404.sp.bar,
+                      ncol = 2, align = "v", 
+                   labels = c("B", "C", "", "", "", ""),
+                   rel_widths = c(1, 3)),
+                   ncol = 1, align = "none", 
+                   labels = c("A", ""),
+                   rel_heights = c(1, 2))
+```
+
+
+
+#### Supplemental Figure 8
+
+**Supplemental Figure 8 Functional characterization of the microbiome during the study**. A-B, the relative abundances of KEGG pathways(A) and modules(B) were compared between Baseline and Low calorie. C-D, the relative abundances of KEGG pathways(C) and modules(D) were compared between Low calorie and Washout. KEGG pathways or modules with reporter score > 1.65 or < - 1.65 are shown. Orange, Blue and red color represent BASE-, LOW- and WASH- enriched pathways or modules, respectively.
+
+```{r, fig.width=25, fig.height=20}
+cowplot::plot_grid(
+  cowplot::plot_grid(bl.path.bar, bl.modu.bar,
+                      ncol = 2, axis = "b",  
+                   scale = c(.5, 1), 
+                   labels = c("A", "B")),
+  cowplot::plot_grid(lw.path.bar, lw.modu.bar,
+                      ncol = 2, axis = "b",  
+                   scale = c(.5, 1), 
+                   labels = c("C", "D")),
+  ncol = 1, align = "v")
+```
+
+
+
+#### Supplemental Figure 9
+
+**Supplemental Figure 9 KOs that are significantly altered (increased in red, depleted in green) in the gut microbiota of subjects after LCRD** for (A) 3 weeks (LOW) compared with baseline (BASE) and (B) after washout for 2 weeks (WASH) compared with LCRD (LOW) (Paired Wilcoxon signed–rank test; p<0.05). (C) different regulated KOs between LOW and WASH.
+
+```{r, fig.height=8, fig.width=18}
+cowplot::plot_grid(bl.ko.en, lw.ko.en, bl.lw.ko.lap,
+          ncol = 3, align = "h", labels = c("A", "B", "C"))
+```

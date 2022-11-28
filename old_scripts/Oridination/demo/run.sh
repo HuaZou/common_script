@@ -1,0 +1,10 @@
+Rscript ../oridination.R phenotype.csv test.profile SampleID Stage PCA T 2 F ./
+Rscript ../oridination.R phenotype.csv test.profile SampleID Stage PCoA T 2 F ./
+Rscript ../oridination.R phenotype.csv test.profile SampleID Stage NMDS T 2 F ./
+Rscript ../oridination.R phenotype.csv test.profile SampleID Stage CA T 2 F ./
+Rscript ../oridination.R phenotype.csv test.profile SampleID Stage DA T 2 F ./
+Rscript ../oridination.R phenotype.csv test.profile SampleID Stage Rtsne T 2 F ./
+Rscript ../oridination.R phenotype.csv test.profile SampleID Stage RDA T 2 F ./
+Rscript ../oridination.R phenotype.csv test.profile SampleID Stage CCA T 2 F ./
+Rscript ../oridination.R phenotype.csv test.profile SampleID Stage dbRDA T 2 F ./
+Rscript ../oridination.R phenotype.csv test.profile SampleID Stage CAP T 2 F ./
