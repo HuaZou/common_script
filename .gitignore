@@ -1,3 +1,18 @@
+# file
+*.html
+.log
+.Rproj.user
 .Rhistory
-*html
+.RData
+.DS_Store
+*.csv
+*.RDS
 *.pdf
+
+# folder
+dataset/
+temp/
+tmp/
+result/
+.ipynb_checkpoints/
+
