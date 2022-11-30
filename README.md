@@ -18,6 +18,7 @@ The scripts are used to deal with data in my daily work
   - [scp file between local and remote](#scp-file-between-local-and-remote)
   - [rsync files between source and destination directory](#rsync-files-between-source-and-destination-directory)
   - [batch run for scripts](#batch-run-for-scripts)
+  - [APAlyzer Expression](#apalyzer-expression)
 
 ## Merging metaphlan
 ```bash
@@ -177,4 +178,15 @@ python rsync.py \
 python run_batch_shell.py \
   -m sra_into_fastq.sh \
   -o sra_into_fastq_batch.sh
+```
+
+## APAlyzer Expression
+```bash
+Rscript APAlyzer_Expression.R \
+  -b bam_file.tsv \
+  -r RData \
+  -g mm9_REF.RData \
+  -c chr19 \
+  -e 3UTR \
+  -o result
 ```

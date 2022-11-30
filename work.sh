@@ -168,3 +168,13 @@ python rsync.py \
 python run_batch_shell.py \
   -m sra_into_fastq.sh \
   -o sra_into_fastq_batch.sh
+
+
+# APAlyzer Expression
+Rscript APAlyzer_Expression.R \
+  -b bam_file.tsv \
+  -r RData \
+  -g mm9_REF.RData \
+  -c chr19 \
+  -e 3UTR \
+  -o result
